@@ -1,4 +1,4 @@
-//! Nullchan - Image board server.
+//! Microboard - Image board server.
 
 use axum::{
     routing::{get, post},

@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres};
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
@@ -58,5 +58,4 @@ impl Post {
 
         Ok(())
     }
-
 }
