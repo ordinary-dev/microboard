@@ -32,7 +32,7 @@ impl Config {
         }
 
         Config {
-            port: env::var("MB_PORT").unwrap_or("8080".to_string()),
+            port: env::var("MB_PORT").unwrap_or("8000".to_string()),
             secret,
             pg_max_connections: env::var("MB_PG_MAX_CONNECTIONS")
                 .unwrap_or("5".to_string())
