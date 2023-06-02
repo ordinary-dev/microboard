@@ -2,8 +2,24 @@ body {
     margin: 0;
     font-family: 'Segoe UI', 'Roboto', 'Ubuntu', 'Fira Sans', 'Droid Sans', sans-serif;
     background-color: #222;
+    color: #fff;
 }
 
 code {
     font-family: source-code-pro, Menlo, Consolas, 'Courier New', monospace;
+}
+
+a {
+    color: inherit;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+input,
+button {
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
 }
