@@ -11,6 +11,7 @@ hyper = { version = "0.14.26", features = ["full"] }
 tokio = { version = "1.28.0", features = ["full"] }
 tower = "0.4.13"
 sqlx = { version = "0.6.3", features = [ "runtime-tokio-native-tls", "postgres", "chrono" ] }
+time = "0.3.21"
 dotenvy = "0.15.7"
 anyhow = "1.0.71"
 futures = "0.3.28"
