@@ -1,0 +1,46 @@
+.Page {
+    padding: 1em;
+}
+
+.Logo {
+    width: 100%;
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.BoardRecord {
+    display: flex;
+    width: 100%;
+    margin-bottom: 10px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.BoardRecord .Code,
+.BoardRecord .Name {
+    padding: 10px;
+}
+
+.BoardRecord .Code {
+    background-color: #444;
+    width: 40px;
+    border-radius: 5px 0 0 5px;
+    text-align: center;
+}
+
+.BoardRecord .Name {
+    background-color: #333;
+    flex-grow: 1;
+    border-radius: 0 5px 5px 0;
+}
+
+.BoardRecord:hover .Code {
+    background-color: #555;
+}
+
+.BoardRecord:hover .Name {
+    background-color: #444;
+}

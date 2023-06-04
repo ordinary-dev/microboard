@@ -39,7 +39,7 @@
 
 .BoardRecord {
     display: flex;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     width: 100%;
 }
 
@@ -51,8 +51,9 @@
 
 .BoardCode {
     background-color: #444;
-    min-width: 40px;
+    width: 40px;
     border-radius: 5px 0 0 5px;
+    text-align: center;
 }
 
 .BoardName {
