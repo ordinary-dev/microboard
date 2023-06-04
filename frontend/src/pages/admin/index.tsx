@@ -34,12 +34,18 @@ const AdminPanel: Component = () => {
     )
 }
 
-async function submitNewBoard(e) {
+interface BoardForm extends HTMLFormElement {
+    boardCode: HTMLInputElement
+    boardName: HTMLInputElement
+}
+
+async function submitNewBoard(e: Event) {
     e.preventDefault()
-    const { boardCode, boardName } = e.target
+    const target = e.target as BoardForm
+    const { boardCode, boardName } = target
     try {
         await createBoard(boardCode.value, boardName.value)
-        e.target.reset()
+        target.reset()
     }
     catch(err) {
         console.error(err)
