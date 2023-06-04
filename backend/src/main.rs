@@ -9,7 +9,6 @@ use sqlx::postgres::PgPoolOptions;
 mod api;
 mod backend;
 mod config;
-mod error;
 mod state;
 
 #[tokio::main]
