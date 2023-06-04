@@ -27,20 +27,17 @@ async fn main() {
     let app_state = state::AppState::new(database_pool);
 
     let app = Router::new()
-        .route(
-            "/api/v0/boards",
-            get(api::boards::get_all).post(api::boards::create),
-        )
-        .route(
-            "/api/v0/boards/:code",
-            get(api::boards::get)
-                .put(api::boards::update)
-                .delete(api::boards::delete),
-        )
+        // Boards
+        .route("/api/v0/boards", get(api::boards::get_all).post(api::boards::create))
+        .route("/api/v0/boards/:code", get(api::boards::get).put(api::boards::update).delete(api::boards::delete))
+        // Threads
         .route("/api/v0/threads", post(api::threads::create_thread))
-        .route("/api/v0/threads/:id", get(api::threads::get_thread))
+        .route("/api/v0/threads/by_id/:id", get(api::threads::get_thread_by_id))
+        .route("/api/v0/threads/by_board_code/:board_code", get(api::threads::get_threads_by_board_code))
+        // Posts
         .route("/api/v0/posts", post(api::posts::create_post))
         .route("/api/v0/posts/:id", get(api::posts::get_post))
+        // Files
         .route("/api/v0/files", post(api::files::create_file))
         .with_state(app_state);
 

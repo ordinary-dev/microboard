@@ -18,7 +18,8 @@ a {
 }
 
 input,
-button {
+button,
+textarea {
     font-size: inherit;
     font-family: inherit;
     font-weight: inherit;

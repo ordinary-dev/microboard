@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Postgres};
+use sqlx::{Pool, Postgres, Transaction};
+use chrono::Utc;
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
 pub struct Thread {
@@ -10,16 +11,20 @@ pub struct Thread {
 
 impl Thread {
     /// Get all threads from the specified board.
-    pub async fn get_all(pool: &Pool<Postgres>, board_code: &str) -> anyhow::Result<Vec<Thread>> {
+    pub async fn get_all(pool: &Pool<Postgres>, board_code: &str, limit: i16, offset: i16) -> anyhow::Result<Vec<Thread>> {
         let boards = sqlx::query_as::<_, Thread>(
             "
             SELECT id, board_code
             FROM threads
             WHERE board_code = $1
             ORDER BY updated_at DESC
+            LIMIT $2
+            OFFSET $3
             ",
         )
         .bind(board_code)
+        .bind(limit)
+        .bind(offset)
         .fetch_all(pool)
         .await?;
 
@@ -37,13 +42,16 @@ impl Thread {
     }
 
     /// Write a new record to the database.
-    pub async fn insert(&self, pool: &Pool<Postgres>) -> anyhow::Result<()> {
-        sqlx::query("INSERT INTO threads (board_code) VALUES ($1)")
-            .bind(&self.board_code)
-            .execute(pool)
+    ///
+    /// A transaction is required to create the first post after the thread is created.
+    pub async fn insert(pool: &mut Transaction<'_, Postgres>, board_code: &str) -> anyhow::Result<i64> {
+        let id: (i64,) = sqlx::query_as("INSERT INTO threads (board_code, updated_at) VALUES ($1, $2) RETURNING id")
+            .bind(board_code)
+            .bind(Utc::now())
+            .fetch_one(pool)
             .await?;
 
-        Ok(())
+        Ok(id.0)
     }
 
     /// Delete thread from the database.

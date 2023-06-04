@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Postgres};
+use sqlx::{Pool, Postgres, Transaction};
 
 #[derive(sqlx::FromRow, Serialize, Deserialize, Debug, Clone)]
 pub struct Post {
@@ -39,10 +39,11 @@ impl Post {
     }
 
     /// Write a new record to the database.
-    pub async fn insert(&self, pool: &Pool<Postgres>) -> anyhow::Result<()> {
-        sqlx::query("INSERT INTO posts (body, thread_id) VALUES ($1, $2)")
-            .bind(&self.body)
-            .bind(self.thread_id)
+    pub async fn insert(pool: &mut Transaction<'_, Postgres>, body: &str, thread_id: i64) -> anyhow::Result<()> {
+        sqlx::query("INSERT INTO posts (body, thread_id, created_at) VALUES ($1, $2, $3)")
+            .bind(body)
+            .bind(thread_id)
+            .bind(Utc::now())
             .execute(pool)
             .await?;
 

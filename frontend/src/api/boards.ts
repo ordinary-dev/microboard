@@ -10,6 +10,13 @@ export async function fetchBoards(): Promise<Board[]> {
     return res.json()
 }
 
+export async function fetchBoard(code: string): Promise<Board> {
+    const res = await fetch(`/api/v0/boards/${code}`)
+    if (!res.ok)
+        throw new Error('Failed to fetch the board', { cause: res })
+    return res.json()
+}
+
 export async function createBoard(code: string, name: string): Promise<Board> {
     const options = {
         method: 'POST',
