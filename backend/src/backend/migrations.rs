@@ -6,7 +6,7 @@ use sqlx::{Pool, Postgres, Row};
 /// List of queries that will be executed once.
 ///
 /// Do not change existing queries, create new ones.
-const MIGRATIONS: [&'static str; 7] = [
+const MIGRATIONS: [&str; 7] = [
     // Create 'boards' table.
     "CREATE TABLE boards (
         code VARCHAR(5) PRIMARY KEY,

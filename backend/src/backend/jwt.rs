@@ -28,12 +28,9 @@ pub fn generate_jwt(username: String, secret: &str) -> anyhow::Result<String> {
 
 /// Returns true if jwt token is valid.
 pub fn validate_jwt(token: &str, secret: &str) -> bool {
-    match decode::<Claims>(
+    decode::<Claims>(
         token,
         &DecodingKey::from_secret(secret.as_ref()),
         &Validation::new(Algorithm::HS256),
-    ) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    ).is_ok()
 }

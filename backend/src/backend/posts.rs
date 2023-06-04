@@ -42,7 +42,7 @@ impl Post {
     pub async fn insert(&self, pool: &Pool<Postgres>) -> anyhow::Result<()> {
         sqlx::query("INSERT INTO posts (body, thread_id) VALUES ($1, $2)")
             .bind(&self.body)
-            .bind(&self.thread_id)
+            .bind(self.thread_id)
             .execute(pool)
             .await?;
 
