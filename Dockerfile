@@ -18,10 +18,12 @@ WORKDIR /app
 COPY --from=builder /app/main /usr/local/bin/microboard
 COPY src/assets ./assets
 COPY src/templates ./templates
+COPY src/migrations ./migrations
 
-RUN mkdir -p /var/lib/microboard/uploads
+RUN mkdir /app/uploads
+
 ENV MB_ISPRODUCTION="true"
-ENV MB_UPLOADDIR="/var/lib/microboard/uploads"
+ENV MB_UPLOADDIR="/app/uploads"
 ENV MB_LOGLEVEL="warning"
 
 EXPOSE 8080
