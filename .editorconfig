@@ -5,4 +5,9 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 charset = utf-8
 indent_style = space
+
+[*.{go,mod,sql}]
 indent_size = 4
+
+[*.{css,tmpl,yml}]
+indent_size = 2

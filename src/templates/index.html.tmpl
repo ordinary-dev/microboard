@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        {{template "head"}}
-        <link rel="stylesheet" href="/assets/css/index.css" />
-    </head>
-    <body>
-        <div class="indexPage">
-            <div class="zero">0</div>
-            {{range .boards}}
-                <a href="/boards/{{.Code}}" class="boardCard">
-                    <div class="boardCode">{{.Code}}</div>
-                    <div class="boardName">{{.Name}}</div>
-                </a>
-            {{end}}
-        </div>
-    </body>
+  <head>
+    {{template "head"}}
+    <link rel="stylesheet" href="/assets/css/index.css" />
+  </head>
+  <body>
+    <div class="indexPage">
+      <div class="zero">0</div>
+      {{range .boards}}
+        <a href="/boards/{{.Code}}" class="boardCard">
+          <div class="boardCode">{{.Code}}</div>
+          <div class="boardName">{{.Name}}</div>
+        </a>
+      {{end}}
+    </div>
+  </body>
 </html>
