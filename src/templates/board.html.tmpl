@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {{template "head"}}
+        <link rel="stylesheet" href="/assets/css/board.css" />
+        <link rel="stylesheet" href="/assets/css/post.css" />
+    </head>
+    <body>
+        <div class="boardPage">
+            <a href="/" class="mainPage">Main page</a>
+
+            <div class="info">
+                <div>Page limit: {{ if eq .board.PageLimit 0 }}disabled{{ else }}{{ .board.PageLimit }}{{ end }}</div>
+                <div>Bump limit: {{ if eq .board.BumpLimit 0 }}disabled{{ else }}{{ .board.BumpLimit }}{{ end }}</div>
+            </div>
+
+            <form class="threadForm" action="/threads" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="boardCode" value="{{.board.Code}}" />
+                <textarea placeholder="Text" name="body"></textarea>
+                <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    name="files"
+                    multiple
+                />
+                <button>Post</button>
+            </form>
+            {{if not .threads}}
+                <p>Create the first thread on this board!</p>
+            {{end}}
+            {{range .threads}}
+                <a href="/threads/{{.ID}}" class="thread post">
+                    <div class="meta">
+                        <div>#{{.PostID}}</div>
+                        <div>{{.PostCreatedAt.Format "02 Jan 2006, 15:04:05 -07"}}</div>
+                    </div>
+                    {{if .Files}}
+                        <div class="images">
+                            {{range .Files}}
+                                <div class="image">
+                                    <img src="/uploads/{{.Filepath}}" />
+                                </div>
+                            {{end}}
+                        </div>
+                    {{end}}
+                    <div>{{.Body}}</div>
+                </a>
+            {{end}}
+
+            <div class="pages">
+                {{range $val := loop 1 .pageCount }}
+                    <a href="/boards/{{$.board.Code}}?page={{ $val }}" class="pageBtn">{{ $val }}</a>
+                {{end}}
+            </div>
+        </div>
+    </body>
+</html>

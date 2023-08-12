@@ -1,24 +1,29 @@
-FROM rust AS backend
+FROM golang:1.20.6-alpine3.18 AS builder
 
-COPY ./backend /app
+RUN apk add gcc
+RUN apk add musl-dev
+
 WORKDIR /app
-RUN cargo build --release
 
-FROM node AS frontend
+COPY src/go.mod src/go.sum ./
+RUN go mod download
 
-COPY ./frontend /app
+ADD src .
+
+RUN go build -o main
+
+FROM alpine:3.18.2
+
 WORKDIR /app
-RUN npm install
-RUN npm run build
+COPY --from=builder /app/main /usr/local/bin/microboard
+COPY src/assets ./assets
+COPY src/templates ./templates
 
-FROM alpine
+RUN mkdir -p /var/lib/microboard/uploads
+ENV MB_ISPRODUCTION="true"
+ENV MB_UPLOADDIR="/var/lib/microboard/uploads"
+ENV MB_LOGLEVEL="warning"
 
-COPY --from=backend /app/target/release/microboard /usr/local/bin/microboard
-COPY --from=frontend /app/dist /usr/share/microboard
-
-ENV MB_STATIC_FILES="/usr/share/microboard"
-ENV MB_PORT="80"
-
-EXPOSE 80
+EXPOSE 8080
 
 ENTRYPOINT ["/usr/local/bin/microboard"]

@@ -1,0 +1,9 @@
+CREATE TABLE posts (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    thread_id BIGINT NOT NULL
+        REFERENCES threads(id)
+        ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
+);

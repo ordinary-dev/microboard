@@ -1,0 +1,30 @@
+@font-face {
+  font-family: "Inter Regular";
+  src:
+    local("Inter Regular"),
+    url("/assets/fonts/Inter-Regular.ttf") format("truetype");
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter Regular', sans-serif;
+    padding: 10px;
+    background-color: #1d1926;
+    color: white;
+    font-size: 16px;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+textarea {
+    font-size: inherit;
+    font-family: inherit;
+}
+
+* {
+    box-sizing: border-box;
+}

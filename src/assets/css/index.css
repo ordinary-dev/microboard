@@ -1,0 +1,39 @@
+.indexPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.zero {
+    font-size: 82px;
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
+.boardCard {
+    display: flex;
+    text-decoration: none;
+    width: 100%;
+    max-width: 200px;
+    margin-bottom: 10px;
+}
+
+.boardCode,
+.boardName {
+    padding: 10px 14px;
+}
+
+.boardCode {
+    border-radius: 5px 0 0 5px;
+    background-color: #36365d;
+}
+
+.boardName {
+    border-radius: 0 5px 5px 0;
+    background-color: #404066;
+    flex-grow: 1;
+}
+
+.boardName:hover {
+    background-color: #36365d;
+}

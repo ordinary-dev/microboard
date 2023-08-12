@@ -13,14 +13,5 @@ services:
     ports:
       - 5432:5432
 
-  # Nginx for development.
-  # All requests starting with '/api' will be passed to the backend, all other requests will be passed to the frontend.
-  # Nginx is not used in the production server. The frontend will be compiled into static files that will be served by the backend.
-  nginx:
-    image: nginx:1.25.0-alpine
-    network_mode: host
-    volumes:
-      - ./nginx-conf-dev:/etc/nginx/conf.d:ro
-
 volumes:
   microboard-postgres-dev:

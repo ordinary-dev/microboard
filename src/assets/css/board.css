@@ -1,0 +1,67 @@
+.boardPage {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1em;
+}
+
+.mainPage {
+    margin-bottom: 2em;
+}
+
+.info {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 2em;
+    font-size: 12px;
+    width: 100%;
+    max-width: 450px;
+}
+
+.thread {
+    text-decoration: none;
+}
+
+.threadForm {
+    width: 100%;
+    max-width: 450px;
+}
+
+.threadForm input[type=file] {
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.threadForm textarea,
+.threadForm button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.threadForm textarea {
+    margin-bottom: 10px;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 100px;
+    outline: none;
+}
+
+.threadForm button {
+    margin-bottom: 2em;
+    cursor: pointer;
+}
+
+.pages {
+    display: flex;
+    gap: 10px;
+}
+
+.pageBtn {
+    padding: 10px 13px;
+    background-color: #36365d;
+    text-decoration: none;
+    border-radius: 5px;
+}
