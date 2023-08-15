@@ -15,17 +15,21 @@
     gap: 1em;
     margin-bottom: 2em;
     font-size: 12px;
-    width: 100%;
-    max-width: 450px;
+}
+
+.info,
+.description,
+.threadForm {
+  width: 100%;
+  max-width: 450px;
+}
+
+.description {
+  margin-bottom: 24px;
 }
 
 .thread {
     text-decoration: none;
-}
-
-.threadForm {
-    width: 100%;
-    max-width: 450px;
 }
 
 .threadForm input[type=file] {

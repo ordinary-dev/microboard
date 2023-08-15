@@ -9,6 +9,7 @@
     <div class="boardPage">
       <a href="/" class="mainPage">Main page</a>
 
+      <p class="description">{{ .board.Description }}</p>
       <div class="info">
         <div>Page limit: {{ if eq .board.PageLimit 0 }}disabled{{ else }}{{ .board.PageLimit }}{{ end }}</div>
         <div>Bump limit: {{ if eq .board.BumpLimit 0 }}disabled{{ else }}{{ .board.BumpLimit }}{{ end }}</div>
