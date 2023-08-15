@@ -25,15 +25,16 @@
 
 .boardCode {
     border-radius: 5px 0 0 5px;
-    background-color: #36365d;
+    background-color: var(--fg-dark);
+    width: 39px;
 }
 
 .boardName {
     border-radius: 0 5px 5px 0;
-    background-color: #404066;
+    background-color: var(--fg);
     flex-grow: 1;
 }
 
 .boardName:hover {
-    background-color: #36365d;
+    background-color: var(--fg-dark);
 }

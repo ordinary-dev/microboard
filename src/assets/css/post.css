@@ -1,6 +1,6 @@
 .post {
     padding: 10px 12px;
-    background-color: #36365d;
+    background-color: var(--fg-dark);
     max-width: 450px;
     width: 100%;
     border-radius: 5px;

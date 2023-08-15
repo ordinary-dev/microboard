@@ -1,3 +1,9 @@
+:root {
+  --bg: #16131d;
+  --fg: #3a3a57;
+  --fg-dark: #302b48;
+}
+
 @font-face {
   font-family: "Inter Regular";
   src:
@@ -9,7 +15,7 @@ body {
     margin: 0;
     font-family: 'Inter Regular', sans-serif;
     padding: 10px;
-    background-color: #1d1926;
+    background-color: var(--bg);
     color: white;
     font-size: 16px;
 }
@@ -23,7 +29,7 @@ input,
 textarea {
     font-size: inherit;
     font-family: inherit;
-    background-color: #322643;
+    background-color: var(--fg-dark);
     color: white;
     border-radius: 5px;
     border: 1px solid #67637e;

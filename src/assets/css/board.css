@@ -57,7 +57,7 @@
 
 .pageBtn {
     padding: 10px 13px;
-    background-color: #36365d;
+    background-color: var(--fg-dark);
     text-decoration: none;
     border-radius: 5px;
 }
