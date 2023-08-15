@@ -23,6 +23,30 @@ input,
 textarea {
     font-size: inherit;
     font-family: inherit;
+    background-color: #322643;
+    color: white;
+    border-radius: 5px;
+    border: 1px solid #67637e;
+    transition: border-color 0.05s ease-in-out;
+    outline: none;
+    padding: 10px;
+}
+
+button:hover,
+input:hover,
+textarea:hover,
+button:focus,
+input:focus,
+textarea:focus {
+  border-color: #8b7ed7;
+}
+
+button {
+  cursor: pointer;
+}
+
+input[type=checkbox] {
+  cursor: pointer;
 }
 
 * {

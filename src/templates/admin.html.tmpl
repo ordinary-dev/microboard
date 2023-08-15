@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head"}}
+    <link rel="stylesheet" href="/assets/css/admin.css" />
+  </head>
+  <body class="page">
+    {{ range $idx, $board := .boards }}
+      <form class="board" method="POST" action="/boards/{{ $board.Code }}">
+        <div class="row">
+          <div>
+            <label>Code</label>
+            <input
+              value="{{ $board.Code }}"
+              class="code"
+              name="code"
+              readonly
+            />
+          </div>
+          <div class="name">
+            <label>Name</label>
+            <input
+              name="boardName"
+              value="{{ $board.Name }}"
+              required
+            />
+          </div>
+        </div>
+
+        <label>Description</label>
+        <textarea name="description" required>{{ $board.Description }}</textarea>
+
+        <div class="row">
+          <div>
+            <label>Page limit</label>
+            <input
+              type="number"
+              name="pageLimit"
+              value="{{ $board.PageLimit }}"
+            />
+          </div>
+          <div>
+            <label>Bump limit</label>
+            <input
+              type="number"
+              name="bumpLimit"
+              value="{{ $board.BumpLimit }}"
+            />
+          </div>
+          <input
+            type="checkbox"
+            id="unlisted-{{ $idx }}"
+            name="unlisted"
+            value="true"
+            {{ if $board.Unlisted }}checked{{ end }}
+          />
+          <label for="unlisted-{{ $idx }}">Unlisted</label>
+        </div>
+
+        <button>Save</button>
+      </form>
+    {{ end }}
+
+    <form class="board" method="POST" action="/boards">
+      <div class="row">
+        <div>
+          <label>Code</label>
+          <input
+            name="code"
+            class="code"
+          />
+        </div>
+        <div class="name">
+          <label>Name</label>
+          <input
+            name="boardName"
+            required
+          />
+        </div>
+      </div>
+
+      <label>Description</label>
+      <textarea name="description" required></textarea>
+
+      <div class="row">
+        <div>
+          <label>Page limit</label>
+          <input
+            type="number"
+            name="pageLimit"
+            value="0"
+          />
+        </div>
+        <div>
+          <label>Bump limit</label>
+          <input
+            type="number"
+            name="bumpLimit"
+            value="0"
+          />
+        </div>
+        <input
+          type="checkbox"
+          id="unlisted"
+        />
+        <label for="unlisted">Unlisted</label>
+      </div>
+
+      <button>Create</button>
+    </form>
+  </body>
+</html>

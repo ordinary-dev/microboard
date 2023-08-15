@@ -1,0 +1,72 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 4em;
+}
+
+.board input,
+.board textarea {
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.board label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.row {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.row input {
+  min-width: 0;
+}
+
+.row div {
+  overflow: auto;
+}
+
+.row div input {
+  width: 100%;
+}
+
+.code {
+  max-width: 80px;
+}
+
+.name {
+  flex-grow: 1;
+}
+
+.name input {
+  width: 100%;
+}
+
+.board textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  min-height: 100px;
+}
+
+.row input[type=checkbox] {
+  width: 20px;
+  height: 20px;
+}
+
+.board button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+}

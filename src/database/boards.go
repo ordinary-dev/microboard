@@ -8,27 +8,27 @@ import (
 type Board struct {
 	// Board code, no longer than 2-4 characters.
 	// For example: 'r'.
-	Code string `json:"code"`
+	Code string `json:"code" form:"code"`
 
 	// The name of the board, a couple of words long.
 	// For example: 'random'.
-	Name string `json:"name"`
+	Name string `json:"name" form:"boardName"`
 
 	// Information about the board, a couple of sentences long.
-	Description string `json:"description"`
+	Description string `json:"description" form:"description"`
 
 	// The number of pages after which threads will be deleted.
 	// 0 - no limit.
 	// Typical values: 0, 10.
-	PageLimit int16 `json:"pageLimit" db:"page_limit"`
+	PageLimit int16 `json:"pageLimit" db:"page_limit" form:"pageLimit"`
 
 	// The number of posts after which the thread will not rise higher in the list.
 	// 0 - no limit.
 	// Typical values: 500, 1000.
-	BumpLimit int16 `json:"bumpLimit" db:"bump_limit"`
+	BumpLimit int16 `json:"bumpLimit" db:"bump_limit" form:"bumpLimit"`
 
 	// Is the board hidden from the public list?
-	Unlisted bool `json:"unlisted"`
+	Unlisted bool `json:"unlisted" form:"unlisted"`
 }
 
 // Save board to the database.
@@ -95,7 +95,7 @@ func (db *DB) GetBoard(boardCode string) (*Board, error) {
 // Save updated board information to the database.
 func (db *DB) UpdateBoard(board *Board) error {
 	query := `UPDATE boards
-        SET description = @description, page_limit = @pageLimit, bump_limit = @bumpLimit, unlisted = @unlisted
+        SET name = @name, description = @description, page_limit = @pageLimit, bump_limit = @bumpLimit, unlisted = @unlisted
         WHERE code = @code`
 	args := pgx.NamedArgs{
 		"code":        board.Code,

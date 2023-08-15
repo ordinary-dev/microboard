@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"github.com/ordinary-dev/microboard/src/config"
 	"golang.org/x/crypto/argon2"
 	"time"
 )
@@ -19,11 +20,13 @@ const (
 )
 
 var (
-	ErrWrongPassword     = errors.New("wrong password")
-	ErrTokenWasNotFound  = errors.New("token was not found")
-	ErrTokenHasExpired   = errors.New("token has expired")
-	ErrTokenIsEmpty      = errors.New("token is empty")
-	ErrInvalidTokenOwner = errors.New("invalid token owner")
+	ErrWrongPassword           = errors.New("wrong password")
+	ErrTokenWasNotFound        = errors.New("token was not found")
+	ErrTokenHasExpired         = errors.New("token has expired")
+	ErrTokenIsEmpty            = errors.New("token is empty")
+	ErrInvalidTokenOwner       = errors.New("invalid token owner")
+	ErrEmptyUsernameOrPassword = errors.New("empty username or password")
+	ErrAtLeastOneUserExists    = errors.New("at least one user exists")
 )
 
 // A user with additional privileges.
@@ -44,6 +47,27 @@ type AccessToken struct {
 	Value     string
 	AdminID   int32     `db:"admin_id"`
 	CreatedAt time.Time `db:"created_at"`
+}
+
+func (db *DB) CreateDefaultUser(cfg *config.Config) error {
+	if cfg.DefaultUsername == "" || cfg.DefaultPassword == "" {
+		return ErrEmptyUsernameOrPassword
+	}
+
+	count, err := db.GetAdminCount()
+	if err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return ErrAtLeastOneUserExists
+	}
+
+	if _, err := db.CreateAdmin(cfg.DefaultUsername, cfg.DefaultPassword); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Save new admin user in the database.
@@ -108,7 +132,7 @@ func (db *DB) getAdminByUsername(username string) (*adminWithHash, error) {
 		Username: username,
 	}
 
-	err := db.pool.QueryRow(context.Background(), query, args).Scan(&admin.ID, admin.Salt, admin.Hash)
+	err := db.pool.QueryRow(context.Background(), query, args).Scan(&admin.ID, &admin.Salt, &admin.Hash)
 	if err != nil {
 		return nil, err
 	}

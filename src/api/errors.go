@@ -28,6 +28,7 @@ func HtmlErrorHandler(ctx *gin.Context) {
 			ctx.HTML(http.StatusInternalServerError, "error.html.tmpl", gin.H{
 				"error": err.Error(),
 			})
+			ctx.Abort()
 		}
 
 		logrus.Debugf("%v", err)

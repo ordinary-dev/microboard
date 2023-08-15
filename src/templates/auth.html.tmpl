@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{template "head"}}
+    <link rel="stylesheet" href="/assets/css/auth.css" />
+  </head>
+  <body>
+    <form method="POST" action="/login" class="form">
+      <label>Username</label>
+      <input
+        name="username"
+        type="text"
+        required
+      />
+      <label>Password</label>
+      <input
+        name="password"
+        type="password"
+        required
+      />
+      <button>Submit</button>
+    </form>
+  </body>
+</html>

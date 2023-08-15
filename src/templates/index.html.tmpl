@@ -8,10 +8,12 @@
     <div class="indexPage">
       <div class="zero">0</div>
       {{range .boards}}
-        <a href="/boards/{{.Code}}" class="boardCard">
-          <div class="boardCode">{{.Code}}</div>
-          <div class="boardName">{{.Name}}</div>
-        </a>
+        {{ if not .Unlisted }}
+          <a href="/boards/{{.Code}}" class="boardCard">
+            <div class="boardCode">{{.Code}}</div>
+            <div class="boardName">{{.Name}}</div>
+          </a>
+        {{ end }}
       {{end}}
     </div>
   </body>

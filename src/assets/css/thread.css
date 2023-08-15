@@ -19,9 +19,6 @@
 .postForm textarea,
 .postForm button {
     width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
 }
 
 .postForm textarea {
@@ -29,11 +26,11 @@
     min-width: 100%;
     max-width: 100%;
     min-height: 100px;
-    outline: none;
 }
 
 .postForm input[type=file] {
     margin-bottom: 10px;
+    width: 100%;
 }
 
 .postForm button {

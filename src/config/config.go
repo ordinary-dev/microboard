@@ -25,10 +25,13 @@ type Config struct {
 	Addr string `default:"0.0.0.0"`
 	// The port on which the server will listen.
 	Port int `default:"8000"`
-    // Gin mode
-    IsProduction bool `default:"false"`
+	// Gin mode
+	IsProduction bool `default:"false"`
 
 	UploadDir string `default:"uploads"`
+
+	DefaultUsername string
+	DefaultPassword string
 }
 
 func GetConfig() (*Config, error) {

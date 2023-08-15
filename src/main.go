@@ -32,6 +32,10 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
+	if err := db.CreateDefaultUser(cfg); err != nil {
+		logrus.Error(err)
+	}
+
 	engine := api.GetAPIEngine(db, cfg)
 	engine.Run(fmt.Sprintf("%v:%v", cfg.Addr, cfg.Port))
 }

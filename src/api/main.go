@@ -9,9 +9,9 @@ import (
 )
 
 func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
-    if cfg.IsProduction {
-        gin.SetMode(gin.ReleaseMode)
-    }
+	if cfg.IsProduction {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	engine := gin.Default()
 
@@ -31,6 +31,7 @@ func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
 	engine.Static("/assets", "./assets")
 	engine.Static("/uploads", cfg.UploadDir)
 
+	// Public pages
 	frontend := engine.Group("/")
 	frontend.Use(HtmlErrorHandler)
 	frontend.GET("/", views.ShowMainPage(db))
@@ -38,7 +39,17 @@ func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
 	frontend.POST("/threads", views.CreateThread(db, cfg))
 	frontend.GET("/threads/:id", views.ShowThread(db))
 	frontend.POST("/posts", views.CreatePost(db, cfg))
+	frontend.GET("/login", views.ShowLoginForm)
+	frontend.POST("/login", views.Authenticate(db, cfg))
 
+	// Secret pages
+	protectedFrontend := frontend.Group("/")
+	protectedFrontend.Use(views.AuthenticationMiddleware(db))
+	protectedFrontend.GET("/admin-panel", views.ShowAdminPanel(db))
+	protectedFrontend.POST("/boards", views.CreateBoard(db))
+	protectedFrontend.POST("/boards/:code", views.UpdateBoard(db))
+
+	// JSON API
 	v0 := engine.Group("/api/v0")
 	v0.Use(APIErrorHandler)
 
