@@ -6,7 +6,15 @@
   </head>
   <body>
     <div class="indexPage">
-      <div class="zero">0</div>
+      <div class="art">
+        <img
+          src="/assets/img/art.jpg"
+          alt="The main photo of the site: 2 people are sitting in front of a fireplace at night with glasses in their hands."
+        />
+        <div class="credits">
+          Photo by <a href="https://unsplash.com/@snight">Sergei Solo</a> on <a href="https://unsplash.com/photos/Zif9OPYfwdE">Unsplash</a>
+        </div>
+      </div>
       {{range .boards}}
         {{ if not .Unlisted }}
           <a href="/boards/{{.Code}}" class="boardCard">
