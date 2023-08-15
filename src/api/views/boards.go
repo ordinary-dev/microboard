@@ -63,7 +63,7 @@ func ShowBoard(db *database.DB) gin.HandlerFunc {
 		ctx.HTML(http.StatusOK, "board.html.tmpl", gin.H{
 			"board":     board,
 			"threads":   threads,
-			"pageCount": pageLimit,
+			"pageCount": pageCount,
 		})
 	}
 }
