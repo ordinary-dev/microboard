@@ -2,7 +2,7 @@ FROM golang:1.21.0-alpine3.18 AS builder
 
 RUN apk add gcc
 RUN apk add musl-dev
-RUN apk add vips
+RUN apk add vips-dev
 
 WORKDIR /app
 
