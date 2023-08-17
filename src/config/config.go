@@ -28,7 +28,8 @@ type Config struct {
 	// Gin mode
 	IsProduction bool `default:"false"`
 
-	UploadDir string `default:"uploads"`
+	UploadDir  string `default:"uploads"`
+	PreviewDir string `default:"previews"`
 
 	DefaultUsername string
 	DefaultPassword string

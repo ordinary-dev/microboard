@@ -2,11 +2,14 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/ordinary-dev/microboard/src/config"
 	"github.com/ordinary-dev/microboard/src/database"
+	"github.com/ordinary-dev/microboard/src/storage"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
-func CreateBoard(db *database.DB) gin.HandlerFunc {
+func CreateBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var newBoard database.Board
 		if err := ctx.ShouldBindJSON(&newBoard); err != nil {
@@ -17,6 +20,10 @@ func CreateBoard(db *database.DB) gin.HandlerFunc {
 		if err := db.CreateBoard(&newBoard); err != nil {
 			ctx.Error(err)
 			return
+		}
+
+		if err := storage.CreateDirs(cfg, db); err != nil {
+			logrus.Fatal(err)
 		}
 
 		ctx.JSON(http.StatusCreated, newBoard)

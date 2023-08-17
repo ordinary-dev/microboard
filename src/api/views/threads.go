@@ -1,13 +1,12 @@
 package views
 
 import (
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/h2non/filetype"
 	"github.com/ordinary-dev/microboard/src/config"
 	"github.com/ordinary-dev/microboard/src/database"
+	"github.com/ordinary-dev/microboard/src/storage"
 	"io"
 	"net/http"
 	"os"
@@ -58,16 +57,12 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 					return
 				}
 
-				fileKind, err := filetype.Match(buf)
-				if err != nil || fileKind == filetype.Unknown {
-					fileKind.MIME.Value = "application/octet-stream"
-					fileKind.Extension = "bin"
+				filepath, mimetype, err := storage.SaveBuffer(cfg, buf, boardCode[0])
+				if err != nil {
+					ctx.Error(err)
+					return
 				}
 
-				hasher := sha256.New()
-				hasher.Write(buf)
-
-				filepath := fmt.Sprintf("%x.%v", hasher.Sum(nil), fileKind.Extension)
 				fullFilePath := path.Join(cfg.UploadDir, filepath)
 				if _, err := os.Stat(fullFilePath); errors.Is(err, os.ErrNotExist) {
 					if err = os.WriteFile(fullFilePath, buf, 0644); err != nil {
@@ -80,7 +75,7 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 					Filepath: filepath,
 					Name:     fileHeader.Filename,
 					Size:     uint64(fileHeader.Size),
-					MimeType: fileKind.MIME.Value,
+					MimeType: mimetype,
 				}
 				dbFiles = append(dbFiles, dbFile)
 			}
@@ -90,6 +85,8 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			ctx.Error(err)
 			return
 		}
+
+		go storage.GeneratePreviewsForPost(db, cfg, firstPost.ID)
 
 		board, err := db.GetBoard(thread.BoardCode)
 		if err != nil {

@@ -30,22 +30,29 @@
         <p>Create the first thread on this board!</p>
       {{end}}
       {{range .threads}}
-        <a href="/threads/{{.ID}}" class="thread post">
+        <div class="thread post">
           <div class="meta">
-            <div>#{{.PostID}}</div>
+            <a href="/threads/{{ .ID }}" target="_blank">#{{.PostID}}</a>
             <div>{{.PostCreatedAt.Format "02 Jan 2006, 15:04:05 -07"}}</div>
           </div>
-          {{if .Files}}
+          {{ if .Files }}
             <div class="images">
               {{range .Files}}
-                <div class="image">
-                  <img src="/uploads/{{.Filepath}}" />
+                <div>
+                  <div class="file">
+                    {{ if .Preview }}
+                      <img src="/previews/{{ .Preview }}" />
+                    {{ else }}
+                      preview is not available
+                    {{ end }}
+                  </div>
+                  <a class="filename" href="/uploads/{{ .Filepath }}" target="_blank">{{ .Name }}</a>
                 </div>
-              {{end}}
+              {{ end }}
             </div>
-          {{end}}
+          {{ end }}
           <div>{{.Body}}</div>
-        </a>
+        </div>
       {{end}}
 
       <div class="pages">

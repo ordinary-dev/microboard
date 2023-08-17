@@ -128,6 +128,26 @@ func (db *DB) GetPostsFromThread(threadID uint64) ([]PostWithFiles, error) {
 	return posts, nil
 }
 
+func (db *DB) GetPostsWithMissingPreviews() ([]Post, error) {
+	query := `SELECT DISTINCT ON (posts.id) posts.* FROM posts
+        INNER JOIN files
+        ON files.post_id = posts.id
+        WHERE files.preview IS NULL`
+
+	rows, err := db.pool.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	posts, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[Post])
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
+
 // Marks a post as deleted (but does not remove it from the database)
 func (db *DB) DeletePost(postID uint64) error {
 	query := `UPDATE posts SET deleted_at = @deletedAt WHERE id = @postID`

@@ -1,13 +1,12 @@
 package views
 
 import (
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/h2non/filetype"
 	"github.com/ordinary-dev/microboard/src/config"
 	"github.com/ordinary-dev/microboard/src/database"
+	"github.com/ordinary-dev/microboard/src/storage"
 	"io"
 	"net/http"
 	"os"
@@ -24,6 +23,7 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
+		// Get thread info
 		threadID, ok := form.Value["threadID"]
 		if !ok || len(threadID) < 1 {
 			ctx.Error(errors.New("threadID is undefined"))
@@ -36,6 +36,13 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
+		thread, err := db.GetThread(threadIDUint)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+
+		// Get text
 		body, ok := form.Value["body"]
 		if !ok || len(body) < 1 {
 			ctx.Error(errors.New("body is undefined"))
@@ -48,6 +55,7 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			CreatedAt: time.Now(),
 		}
 
+		// Save files
 		dbFiles := make([]database.File, 0)
 
 		files, ok := form.File["files"]
@@ -65,16 +73,12 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 					return
 				}
 
-				fileKind, err := filetype.Match(buf)
-				if err != nil || fileKind == filetype.Unknown {
-					fileKind.MIME.Value = "application/octet-stream"
-					fileKind.Extension = "bin"
+				filepath, mimetype, err := storage.SaveBuffer(cfg, buf, thread.BoardCode)
+				if err != nil {
+					ctx.Error(err)
+					return
 				}
 
-				hasher := sha256.New()
-				hasher.Write(buf)
-
-				filepath := fmt.Sprintf("%x.%v", hasher.Sum(nil), fileKind.Extension)
 				fullFilePath := path.Join(cfg.UploadDir, filepath)
 				if _, err := os.Stat(fullFilePath); errors.Is(err, os.ErrNotExist) {
 					if err = os.WriteFile(fullFilePath, buf, 0644); err != nil {
@@ -87,17 +91,20 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 					Filepath: filepath,
 					Name:     fileHeader.Filename,
 					Size:     uint64(fileHeader.Size),
-					MimeType: fileKind.MIME.Value,
+					MimeType: mimetype,
 				}
 				dbFiles = append(dbFiles, dbFile)
 			}
 		}
 
+		// Save post
 		err = db.CreatePost(&post, dbFiles)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
+
+		go storage.GeneratePreviewsForPost(db, cfg, post.ID)
 
 		ctx.Redirect(http.StatusFound, fmt.Sprintf("/threads/%v", threadIDUint))
 	}

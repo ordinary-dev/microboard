@@ -6,6 +6,7 @@ import (
 	"github.com/ordinary-dev/microboard/src/config"
 	"github.com/ordinary-dev/microboard/src/database"
 	"html/template"
+	"strings"
 )
 
 func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
@@ -26,10 +27,12 @@ func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
 			}()
 			return ch
 		},
+		"hasPrefix": strings.HasPrefix,
 	})
 	engine.LoadHTMLGlob("templates/*")
 	engine.Static("/assets", "./assets")
 	engine.Static("/uploads", cfg.UploadDir)
+	engine.Static("/previews", cfg.PreviewDir)
 
 	// Public pages
 	frontend := engine.Group("/")
@@ -46,7 +49,7 @@ func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
 	protectedFrontend := frontend.Group("/")
 	protectedFrontend.Use(views.AuthenticationMiddleware(db))
 	protectedFrontend.GET("/admin-panel", views.ShowAdminPanel(db))
-	protectedFrontend.POST("/boards", views.CreateBoard(db))
+	protectedFrontend.POST("/boards", views.CreateBoard(db, cfg))
 	protectedFrontend.POST("/boards/:code", views.UpdateBoard(db))
 
 	// JSON API
@@ -57,7 +60,7 @@ func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
 	v0.POST("/users/token", GetAccessToken(db))
 
 	// Boards
-	v0.POST("/boards", CreateBoard(db))
+	v0.POST("/boards", CreateBoard(db, cfg))
 	v0.GET("/boards", GetBoards(db))
 	v0.GET("/boards/:code", GetBoard(db))
 	v0.PUT("/boards/:code", UpdateBoard(db))

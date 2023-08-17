@@ -12,23 +12,45 @@
     font-size: 12px;
     display: flex;
     gap: 10px;
+    color: #bbb;
+}
+
+.post .meta a:hover {
+  color: white;
 }
 
 .post .images {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
-.post .image {
+.post .file {
     position: relative;
     width: 82px;
     height: 82px;
+    background: black;
 }
 
-.post .image img {
+.post .file img {
     object-fit: cover;
     width: 100%;
     height: 100%;
+}
+
+.post .filename {
+  font-size: 12px;
+  max-width: 82px;
+  height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  margin-top: 4px;
+  color: #bbb;
+  text-decoration: none;
+}
+
+.post .filename:hover {
+  color: white;
 }

@@ -31,8 +31,15 @@
           {{if .Files}}
             <div class="images">
               {{range .Files}}
-                <div class="image">
-                  <img src="/uploads/{{.Filepath}}" />
+                <div>
+                  <div class="file">
+                    {{ if .Preview }}
+                      <img src="/previews/{{ .Preview }}" />
+                    {{ else }}
+                      preview is not available
+                    {{ end }}
+                  </div>
+                  <a class="filename" href="/uploads/{{ .Filepath }}" target="_blank">{{ .Name }}</a>
                 </div>
               {{end}}
             </div>
