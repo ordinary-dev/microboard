@@ -9,7 +9,7 @@ indent_style = space
 [*.{go,mod,sql}]
 indent_size = 4
 
-[*.{css,tmpl,yml}]
+[*.{css,tmpl,yml,nix}]
 indent_size = 2
 
 [Makefile]
