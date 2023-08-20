@@ -2,9 +2,9 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/src/api/views"
-	"github.com/ordinary-dev/microboard/src/config"
-	"github.com/ordinary-dev/microboard/src/database"
+	"github.com/ordinary-dev/microboard/api/views"
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
 	"html/template"
 	"strings"
 )

@@ -1,4 +1,4 @@
-module github.com/ordinary-dev/microboard/src
+module github.com/ordinary-dev/microboard
 
 go 1.20
 

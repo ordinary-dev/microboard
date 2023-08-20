@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"github.com/ordinary-dev/microboard/src/config"
-	"github.com/ordinary-dev/microboard/src/database"
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
 	"os"
 	"path"
 )

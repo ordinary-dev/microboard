@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/h2non/filetype"
-	"github.com/ordinary-dev/microboard/src/config"
+	"github.com/ordinary-dev/microboard/config"
 	"os"
 	"path"
 	"strings"

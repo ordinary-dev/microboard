@@ -7,7 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"github.com/jackc/pgx/v5"
-	"github.com/ordinary-dev/microboard/src/config"
+	"github.com/ordinary-dev/microboard/config"
 	"golang.org/x/crypto/argon2"
 	"time"
 )

@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/davidbyttow/govips/v2/vips"
-	"github.com/ordinary-dev/microboard/src/api"
-	"github.com/ordinary-dev/microboard/src/config"
-	"github.com/ordinary-dev/microboard/src/database"
-	"github.com/ordinary-dev/microboard/src/storage"
+	"github.com/ordinary-dev/microboard/api"
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/storage"
 	"github.com/sirupsen/logrus"
 )
 

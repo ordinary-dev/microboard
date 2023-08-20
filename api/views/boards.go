@@ -3,9 +3,9 @@ package views
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/src/config"
-	"github.com/ordinary-dev/microboard/src/database"
-	"github.com/ordinary-dev/microboard/src/storage"
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/storage"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
