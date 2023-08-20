@@ -9,15 +9,15 @@ import (
 type Config struct {
 	// General settings.
 
-	// Long random string used for authorization.
-	SecretKey string `required:"true"`
 	// Log level: debug, info, warning, error, fatal.
 	LogLevel string `default:"warning"`
 
 	// Database settings.
-
-	// Postgres db url: "host=localhost user=gorm password=gorm dbname=gorm port=5432 sslmode=disable TimeZone=Utc"
-	DatabaseUrl string `required:"true"`
+	DbName     string  `required:"true"`
+	DbUser     string  `required:"true"`
+	DbPassword *string `default:"nil"`
+	DbHost     string  `required:"true"`
+	DbPort     *uint16  `default:"nil"`
 
 	// HTTP server settings.
 

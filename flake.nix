@@ -52,5 +52,108 @@
       # flake provides only one package or there is a clear "main"
       # package.
       defaultPackage = forAllSystems (system: self.packages.${system}.microboard);
+
+      # NixOS service
+      nixosModule = forAllSystems (system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        { config, lib, pkgs, ... }:
+          with lib; let
+            cfg = config.services.microboard;
+          in
+          {
+            options.services.microboard = {
+              enable = mkEnableOption "Enable microboard engine";
+
+              port = mkOption {
+                type = types.port;
+                default = 55006;
+                description = "Port to serve microboard on.";
+              };
+
+              dataDir = mkOption {
+                type = types.path;
+                default = "/var/lib/microboard";
+                description = "Directory where uploaded images and attachments are stored.";
+              };
+
+              database.name = {
+                type = types.str;
+                default = "microboard";
+                description = "Name of the postgres database";
+              };
+
+              database.user = {
+                type = types.str;
+                default = "microboard";
+                description = "Postgres user";
+              };
+
+              database.passwordFile = {
+                type = types.nullOr types.path;
+                default = null;
+                description = "Path to the file with the password for postgres.";
+              };
+
+              database.host = {
+                type = types.str;
+                default = "/run/postgresql";
+                description = "Postgresql host";
+              };
+
+              database.port = {
+                type = types.nullOr types.port;
+                default = null;
+                description = "Postgres port";
+              };
+            };
+            config = mkIf cfg.enable {
+              users.users.microboard = {
+                group = "microboard";
+                home = cfg.dataDir;
+                createHome = true;
+              };
+
+              users.groups.microboard = { };
+
+              systemd.services.microboard = {
+                description = "Microboard engine";
+                wantedBy = ["multi-user.target"];
+
+                environment = {
+                  MB_LOGLEVEL = "warning";
+                  MB_UPLOADDIR = "${cfg.dataDir}/uploads";
+                  MB_PREVIEWDIR = "${cfg.dataDir}/previews";
+                  MB_DBHOST = cfg.database.host;
+                  MB_DBUSER = cfg.database.user;
+                  MB_DBNAME = cfg.database.name;
+                  MB_PORT = cfg.port;
+                } // lib.optionalAttrs (cfg.database.passwordFile != null) {
+                  MB_DBPASSWORD = "$(cat ${cfg.database.passwordFile})";
+                } // lib.optionalAttrs (cfg.databse.port != null) {
+                  MB_DBPORT = cfg.database.port;
+                };
+
+                serviceConfig = {
+                  User = cfg.user;
+                  Group = cfg.user.group;
+                  ExecStart = "${cfg.package}/bin/microboard";
+                  Restart = "on-failure";
+                  Type = "exec";
+                  WorkingDirectory = cfg.dataDir;
+
+                  # Security Hardening
+                  LockPersonality = true;
+                  NoNewPrivileges = true;
+                  ProtectSystem = "strict";
+                  ReadWritePaths = [ cfg.dataDir ];
+                  RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" ];
+                  RestrictSUIDSGID = true;
+                };
+              };
+            };
+          });
+
     };
 }

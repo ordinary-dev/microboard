@@ -6,7 +6,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/sirupsen/logrus"
-	"strings"
 )
 
 func Migrate(cfg *config.Config) error {
@@ -14,8 +13,7 @@ func Migrate(cfg *config.Config) error {
 
 	m, err := migrate.New(
 		"file://migrations",
-		// Replace postgres://... with pgx5://...
-		strings.Replace(cfg.DatabaseUrl, "postgres", "pgx5", 1),
+		getDbUrl(cfg, "pgx5"),
 	)
 	if err != nil {
 		return err
