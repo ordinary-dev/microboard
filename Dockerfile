@@ -6,10 +6,10 @@ RUN apk add vips-dev
 
 WORKDIR /app
 
-COPY src/go.mod src/go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
-ADD src .
+ADD . .
 
 RUN go build -o main
 
@@ -20,9 +20,9 @@ RUN apk add ffmpeg
 
 WORKDIR /app
 COPY --from=builder /app/main /usr/local/bin/microboard
-COPY src/assets ./assets
-COPY src/templates ./templates
-COPY src/migrations ./migrations
+COPY assets ./assets
+COPY templates ./templates
+COPY migrations ./migrations
 
 RUN mkdir /app/uploads
 
