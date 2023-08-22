@@ -32,7 +32,7 @@
       {{range .threads}}
         <div class="thread post">
           <div class="meta">
-            <a href="/threads/{{ .ID }}" target="_blank">#{{.PostID}}</a>
+            <a href="/threads/{{ .ID }}">#{{.PostID}}</a>
             <div>{{.PostCreatedAt.Format "02 Jan 2006, 15:04:05 -07"}}</div>
           </div>
           {{ if .Files }}
