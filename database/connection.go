@@ -36,9 +36,9 @@ func getDbUrl(cfg *config.Config, schema string) string {
 	}
 
 	url += fmt.Sprintf("@/%v?host=%v", cfg.DbName, cfg.DbHost)
-    if cfg.DbPort != nil {
-        url += fmt.Sprintf("&port=%v", *cfg.DbPort)
-    }
+	if cfg.DbPort != nil {
+		url += fmt.Sprintf("&port=%v", *cfg.DbPort)
+	}
 
 	return url
 }

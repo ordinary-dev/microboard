@@ -7,8 +7,10 @@ import (
 	"net/http"
 )
 
-func ShowLoginForm(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "auth.html.tmpl", gin.H{})
+func ShowLoginForm(cfg *config.Config) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		Render(ctx, cfg, http.StatusOK, "auth.html.tmpl", gin.H{})
+	}
 }
 
 type AuthForm struct {
@@ -41,11 +43,11 @@ func Authenticate(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func AuthenticationMiddleware(db *database.DB) gin.HandlerFunc {
+func AuthenticationMiddleware(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, err := ctx.Cookie("microboard-token")
 		if err != nil {
-			ctx.HTML(http.StatusUnauthorized, "error.html.tmpl", gin.H{
+			Render(ctx, cfg, http.StatusUnauthorized, "error.html.tmpl", gin.H{
 				"error": err.Error(),
 			})
 			ctx.Abort()
@@ -53,7 +55,7 @@ func AuthenticationMiddleware(db *database.DB) gin.HandlerFunc {
 		}
 
 		if _, err := db.ValidateAccessToken(token); err != nil {
-			ctx.HTML(http.StatusUnauthorized, "error.html.tmpl", gin.H{
+			Render(ctx, cfg, http.StatusUnauthorized, "error.html.tmpl", gin.H{
 				"error": err.Error(),
 			})
 			ctx.Abort()

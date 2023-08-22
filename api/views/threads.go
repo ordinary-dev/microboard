@@ -98,7 +98,7 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func ShowThread(db *database.DB) gin.HandlerFunc {
+func ShowThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		threadID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -118,7 +118,7 @@ func ShowThread(db *database.DB) gin.HandlerFunc {
 			return
 		}
 
-		ctx.HTML(http.StatusOK, "thread.html.tmpl", gin.H{
+		Render(ctx, cfg, http.StatusOK, "thread.html.tmpl", gin.H{
 			"posts":     posts,
 			"threadID":  threadID,
 			"boardCode": thread.BoardCode,

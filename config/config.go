@@ -17,7 +17,7 @@ type Config struct {
 	DbUser     string  `required:"true"`
 	DbPassword *string `default:"nil"`
 	DbHost     string  `required:"true"`
-	DbPort     *uint16  `default:"nil"`
+	DbPort     *uint16 `default:"nil"`
 
 	// HTTP server settings.
 
@@ -33,6 +33,14 @@ type Config struct {
 
 	DefaultUsername string
 	DefaultPassword string
+
+	// Link to plausible analytics script (optional).
+	// Example: "https://plausible.example.com/js/plausible.js".
+	PlausibleAnalyticsSrc string `default:""`
+
+	// Your domain (required for analytics).
+	// Example: "microboard.example.com".
+	Domain string `default:""`
 }
 
 func GetConfig() (*Config, error) {

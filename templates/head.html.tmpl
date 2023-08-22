@@ -1,6 +1,11 @@
-{{define "head"}}
+{{ define "head" }}
 <title>Microboard</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" href="/assets/css/base.css" />
-{{end}}
+{{ if isNotEmpty .plausibleSrc }}
+  {{ if isNotEmpty .domain }}
+    <script defer data-domain="{{ .domain }}" src="{{ .plausibleSrc }}"></script>
+  {{ end }}
+{{ end }}
+{{ end }}

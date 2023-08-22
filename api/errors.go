@@ -19,18 +19,3 @@ func APIErrorHandler(ctx *gin.Context) {
 		logrus.Debugf("%v", err)
 	}
 }
-
-func HtmlErrorHandler(ctx *gin.Context) {
-	ctx.Next()
-
-	for idx, err := range ctx.Errors {
-		if idx == 0 {
-			ctx.HTML(http.StatusInternalServerError, "error.html.tmpl", gin.H{
-				"error": err.Error(),
-			})
-			ctx.Abort()
-		}
-
-		logrus.Debugf("%v", err)
-	}
-}

@@ -28,6 +28,9 @@ func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
 			return ch
 		},
 		"hasPrefix": strings.HasPrefix,
+		"isNotEmpty": func(t string) bool {
+			return t != ""
+		},
 	})
 	engine.LoadHTMLGlob("templates/*")
 	engine.Static("/assets", "./assets")
@@ -36,19 +39,19 @@ func GetAPIEngine(db *database.DB, cfg *config.Config) *gin.Engine {
 
 	// Public pages
 	frontend := engine.Group("/")
-	frontend.Use(HtmlErrorHandler)
-	frontend.GET("/", views.ShowMainPage(db))
-	frontend.GET("/boards/:code", views.ShowBoard(db))
+	frontend.Use(views.HtmlErrorHandler(cfg))
+	frontend.GET("/", views.ShowMainPage(db, cfg))
+	frontend.GET("/boards/:code", views.ShowBoard(db, cfg))
 	frontend.POST("/threads", views.CreateThread(db, cfg))
-	frontend.GET("/threads/:id", views.ShowThread(db))
+	frontend.GET("/threads/:id", views.ShowThread(db, cfg))
 	frontend.POST("/posts", views.CreatePost(db, cfg))
-	frontend.GET("/login", views.ShowLoginForm)
+	frontend.GET("/login", views.ShowLoginForm(cfg))
 	frontend.POST("/login", views.Authenticate(db, cfg))
 
 	// Secret pages
 	protectedFrontend := frontend.Group("/")
-	protectedFrontend.Use(views.AuthenticationMiddleware(db))
-	protectedFrontend.GET("/admin-panel", views.ShowAdminPanel(db))
+	protectedFrontend.Use(views.AuthenticationMiddleware(db, cfg))
+	protectedFrontend.GET("/admin-panel", views.ShowAdminPanel(db, cfg))
 	protectedFrontend.POST("/boards", views.CreateBoard(db, cfg))
 	protectedFrontend.POST("/boards/:code", views.UpdateBoard(db))
 

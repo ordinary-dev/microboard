@@ -19,7 +19,7 @@ var (
 	ErrInvalidBumpLimit = errors.New("bump limit is invalid")
 )
 
-func ShowBoard(db *database.DB) gin.HandlerFunc {
+func ShowBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		boardCode := ctx.Param("code")
 
@@ -63,7 +63,7 @@ func ShowBoard(db *database.DB) gin.HandlerFunc {
 			pageCount = pageLimit
 		}
 
-		ctx.HTML(http.StatusOK, "board.html.tmpl", gin.H{
+		Render(ctx, cfg, http.StatusOK, "board.html.tmpl", gin.H{
 			"board":     board,
 			"threads":   threads,
 			"pageCount": pageCount,
