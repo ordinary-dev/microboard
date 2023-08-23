@@ -37,3 +37,10 @@
     margin-bottom: 2em;
     cursor: pointer;
 }
+
+#newReplyBtn {
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 2em;
+  display: none;
+}

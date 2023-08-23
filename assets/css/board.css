@@ -54,6 +54,13 @@
     margin-bottom: 2em;
 }
 
+#newThreadBtn {
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 2em;
+  display: none;
+}
+
 .pages {
     display: flex;
     gap: 10px;

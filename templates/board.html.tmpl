@@ -4,6 +4,7 @@
     {{ template "head" . }}
     <link rel="stylesheet" href="/assets/css/board.css" />
     <link rel="stylesheet" href="/assets/css/post.css" />
+    <script src="/assets/js/board.js"></script>
   </head>
   <body>
     <div class="boardPage">
@@ -15,7 +16,7 @@
         <div>Bump limit: {{ if eq .board.BumpLimit 0 }}disabled{{ else }}{{ .board.BumpLimit }}{{ end }}</div>
       </div>
 
-      <form class="threadForm" action="/threads" method="POST" enctype="multipart/form-data">
+      <form class="threadForm" action="/threads" method="POST" enctype="multipart/form-data" id="threadForm">
         <input type="hidden" name="boardCode" value="{{.board.Code}}" />
         <textarea placeholder="Text" name="body"></textarea>
         <input
@@ -26,6 +27,9 @@
         />
         <button>Post</button>
       </form>
+      <button id="newThreadBtn" onclick="showThreadForm()">
+        Create a thread
+      </button>
       {{if not .threads}}
         <p>Create the first thread on this board!</p>
       {{end}}

@@ -4,6 +4,7 @@
     {{ template "head" . }}
     <link rel="stylesheet" href="/assets/css/thread.css" />
     <link rel="stylesheet" href="/assets/css/post.css" />
+    <script defer src="/assets/js/thread.js"></script>
   </head>
   <body>
     <div class="threadPage">
@@ -11,7 +12,7 @@
         <a href="/">Main page</a>
         <a href="/boards/{{ .boardCode }}">/{{ .boardCode }}/</a>
       </div>
-      <form class="postForm" action="/posts" method="POST" enctype="multipart/form-data">
+      <form class="postForm" action="/posts" method="POST" enctype="multipart/form-data" id="replyForm">
         <input type="hidden" name="threadID" value="{{.threadID}}" />
         <textarea placeholder="Text" name="body"></textarea>
         <input
@@ -22,7 +23,10 @@
         />
         <button>Post</button>
       </form>
-      {{range .posts}}
+      <button id="newReplyBtn" onclick="showReplyForm()">
+        Reply
+      </button>
+      {{ range .posts }}
         <div class="post">
           <div class="meta">
             <div>#{{.ID}}</div>
