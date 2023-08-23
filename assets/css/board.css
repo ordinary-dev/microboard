@@ -21,7 +21,7 @@
 .description,
 .threadForm {
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
 }
 
 .description {
@@ -56,7 +56,7 @@
 
 #newThreadBtn {
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
   margin-bottom: 2em;
   display: none;
 }
