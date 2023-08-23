@@ -154,6 +154,8 @@ func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
 	}
 	defer rows.Close()
 
+    tokenExists := false
+
 	if rows.Next() {
 		accessToken := AccessToken{
 			AdminID: adminID,
@@ -163,14 +165,14 @@ func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
 			return nil, err
 		}
 
-		if err := accessToken.IsValid(); err != nil {
-			return nil, err
-		}
-
-		return &accessToken, nil
+		if err := accessToken.IsValid(); err == nil {
+		    return &accessToken, nil
+		} else {
+            tokenExists = true
+        }
 	}
 
-	// Token doesn't exist.
+	// Token doesn't exist or it's not valid.
 	// Create a new one.
 
 	rawToken, err := getRandomBytes(32)
@@ -179,7 +181,12 @@ func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
 	}
 	token := base64.StdEncoding.EncodeToString(rawToken)
 
-	query = `INSERT INTO access_tokens(value, admin_id, created_at) VALUES (@value, @adminID, @createdAt)`
+    if tokenExists {
+	    query = `UPDATE access_tokens SET value = @value, created_at = @createdAt WHERE admin_id = @adminID`
+    } else {
+	    query = `INSERT INTO access_tokens(value, admin_id, created_at) VALUES (@value, @adminID, @createdAt)`
+    }
+
 	now := time.Now()
 	args = pgx.NamedArgs{
 		"value":     token,
