@@ -167,3 +167,47 @@ func (db *DB) DeletePost(postID uint64) error {
 
 	return nil
 }
+
+// Get 3 latest posts from the thread, not including the first one
+func (db *DB) GetLatestPostsFromThread(threadID uint64) ([]PostWithFiles, error) {
+	query := `SELECT sub.*
+        FROM (
+            SELECT * FROM posts
+            WHERE thread_id = @threadID
+            AND deleted_at IS NULL
+            AND id NOT IN (
+                SELECT id FROM posts
+                WHERE thread_id = @threadID
+                ORDER BY created_at ASC
+                LIMIT 1
+            )
+            ORDER BY created_at DESC
+            LIMIT 3
+        ) sub
+        ORDER BY created_at ASC`
+	args := pgx.NamedArgs{
+		"threadID": threadID,
+	}
+
+	rows, err := db.pool.Query(context.Background(), query, args)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	posts, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[PostWithFiles])
+	if err != nil {
+		return nil, err
+	}
+
+	for idx := range posts {
+		files, err := db.GetFilesByPostID(posts[idx].ID)
+		if err != nil {
+			return nil, err
+		}
+
+		posts[idx].Files = files
+	}
+
+	return posts, nil
+}

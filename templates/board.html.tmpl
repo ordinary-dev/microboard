@@ -60,6 +60,33 @@
           {{ end }}
           <div>{{.Body}}</div>
         </div>
+        {{ range .LatestPosts }}
+          <div class="reply">
+            <div class="meta">
+              <div>#{{ .ID }}</div>
+              <div>{{ .CreatedAt.Format "02 Jan 2006, 15:04:05 -07" }}</div>
+            </div>
+
+            {{ if .Files }}
+              <div class="images">
+                {{range .Files}}
+                  <div>
+                    <div class="file">
+                      {{ if .Preview }}
+                        <img src="/previews/{{ .Preview }}" />
+                      {{ else }}
+                        preview is not available
+                      {{ end }}
+                    </div>
+                    <a class="filename" href="/uploads/{{ .Filepath }}" target="_blank">{{ .Name }}</a>
+                  </div>
+                {{ end }}
+              </div>
+            {{ end }}
+
+            {{ .Body }}
+          </div>
+        {{ end }}
       {{end}}
 
       <div class="pages">

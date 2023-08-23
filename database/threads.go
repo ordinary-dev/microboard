@@ -23,15 +23,16 @@ type Thread struct {
 }
 
 // The same structure as a regular thread, but with additional fields from the post.
-type ThreadWithFirstPost struct {
-	ID            uint64     `json:"id"`
-	BoardCode     string     `json:"boardCode" db:"board_code"`
-	UpdatedAt     time.Time  `json:"updatedAt" db:"updated_at"`
-	DeletedAt     *time.Time `json:"deletedAt" db:"deleted_at"`
-	PostID        uint64     `json:"postID" db:"post_id"`
-	Body          string     `json:"body"`
-	PostCreatedAt time.Time  `json:"postCreatedAt" db:"post_created_at"`
-	Files         []File     `json:"file"`
+type ThreadWithFirstAndLastPosts struct {
+	ID            uint64          `json:"id"`
+	BoardCode     string          `json:"boardCode" db:"board_code"`
+	UpdatedAt     time.Time       `json:"updatedAt" db:"updated_at"`
+	DeletedAt     *time.Time      `json:"deletedAt" db:"deleted_at"`
+	PostID        uint64          `json:"postID" db:"post_id"`
+	Body          string          `json:"body"`
+	PostCreatedAt time.Time       `json:"postCreatedAt" db:"post_created_at"`
+	Files         []File          `json:"file"`
+	LatestPosts   []PostWithFiles `json:"lastPosts"`
 }
 
 // Start a new thread.
@@ -100,7 +101,7 @@ func (db *DB) CreateThread(thread *Thread, post *Post, files []File) error {
 }
 
 // Get threads that haven't been deleted.
-func (db *DB) GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirstPost, error) {
+func (db *DB) GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirstAndLastPosts, error) {
 	query := `SELECT * FROM (
         SELECT DISTINCT ON (threads.id) threads.id, threads.board_code, threads.updated_at, posts.body, posts.id AS post_id, posts.created_at AS post_created_at
         FROM threads
@@ -128,7 +129,7 @@ func (db *DB) GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirst
 	}
 	defer rows.Close()
 
-	threads, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[ThreadWithFirstPost])
+	threads, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[ThreadWithFirstAndLastPosts])
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +140,13 @@ func (db *DB) GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirst
 			return nil, err
 		}
 
+		latestPosts, err := db.GetLatestPostsFromThread(threads[idx].ID)
+		if err != nil {
+			return nil, err
+		}
+
 		threads[idx].Files = files
+		threads[idx].LatestPosts = latestPosts
 	}
 
 	return threads, nil
