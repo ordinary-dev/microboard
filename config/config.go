@@ -17,7 +17,7 @@ type Config struct {
 	DbUser     string  `required:"true"`
 	DbPassword *string `default:"nil"`
 	DbHost     string  `required:"true"`
-	DbPort     *uint16 `default:"nil"`
+	DbPort     *uint16
 
 	// HTTP server settings.
 
