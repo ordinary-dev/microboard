@@ -34,6 +34,7 @@
     width: 82px;
     height: 82px;
     background: black;
+    cursor: pointer;
 }
 
 .post .file img {

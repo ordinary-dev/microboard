@@ -5,7 +5,23 @@
     <title>/{{ .board.Code }}/ - Microboard</title>
     <link rel="stylesheet" href="/assets/css/board.css" />
     <link rel="stylesheet" href="/assets/css/post.css" />
+    <link rel="stylesheet" href="/assets/css/fileviewer.css" />
     <script src="/assets/js/board.js"></script>
+    <script src="/assets/js/fileviewer.js"></script>
+    <script>
+      window.files = [
+        {{ range .threads }}
+          {{ range .Files }}
+            { id: {{ .ID }}, url: "{{ .Filepath }}", mimetype: "{{ .MimeType }}" },
+          {{ end }}
+          {{ range .LatestPosts }}
+            {{ range .Files }}
+              { id: {{ .ID }}, url: "{{ .Filepath }}", mimetype: "{{ .MimeType }}" },
+            {{ end }}
+          {{ end }}
+        {{ end }}
+      ]
+    </script>
   </head>
   <body>
     <div class="boardPage">
@@ -46,7 +62,7 @@
             <div class="images">
               {{range .Files}}
                 <div>
-                  <div class="file">
+                  <div class="file" onclick="showFileViewer({{ .ID }})">
                     {{ if .Preview }}
                       <img src="/previews/{{ .Preview }}" />
                     {{ else }}
@@ -71,7 +87,7 @@
               <div class="images">
                 {{range .Files}}
                   <div>
-                    <div class="file">
+                    <div class="file" onclick="showFileViewer({{ .ID }})">
                       {{ if .Preview }}
                         <img src="/previews/{{ .Preview }}" />
                       {{ else }}
@@ -94,6 +110,8 @@
           <a href="/boards/{{$.board.Code}}?page={{ $val }}" class="pageBtn">{{ $val }}</a>
         {{end}}
       </div>
+
+      {{ template "fileviewer" . }}
     </div>
   </body>
 </html>

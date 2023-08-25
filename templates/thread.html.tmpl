@@ -5,7 +5,18 @@
     <title>Thread #{{ .threadID }} - /{{ .boardCode }}/ - Microboard</title>
     <link rel="stylesheet" href="/assets/css/thread.css" />
     <link rel="stylesheet" href="/assets/css/post.css" />
+    <link rel="stylesheet" href="/assets/css/fileviewer.css" />
     <script defer src="/assets/js/thread.js"></script>
+    <script src="/assets/js/fileviewer.js"></script>
+    <script>
+      window.files = [
+        {{ range .posts }}
+          {{ range .Files }}
+            { id: {{ .ID }}, url: "{{ .Filepath }}", mimetype: "{{ .MimeType }}" },
+          {{ end }}
+        {{ end }}
+      ]
+    </script>
   </head>
   <body>
     <div class="threadPage">
@@ -37,7 +48,7 @@
             <div class="images">
               {{range .Files}}
                 <div>
-                  <div class="file">
+                  <div class="file" onclick="showFileViewer({{ .ID }})">
                     {{ if .Preview }}
                       <img src="/previews/{{ .Preview }}" />
                     {{ else }}
@@ -53,5 +64,6 @@
         </div>
       {{end}}
     </div>
+    {{ template "fileviewer" . }}
   </body>
 </html>
