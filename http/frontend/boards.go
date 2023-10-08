@@ -1,4 +1,4 @@
-package views
+package frontend
 
 import (
 	"errors"
@@ -63,7 +63,7 @@ func ShowBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			pageCount = pageLimit
 		}
 
-		Render(ctx, cfg, http.StatusOK, "board.html.tmpl", gin.H{
+		render(ctx, cfg, http.StatusOK, "board.html.tmpl", gin.H{
 			"board":     board,
 			"threads":   threads,
 			"pageCount": pageCount,

@@ -1,4 +1,4 @@
-package views
+package frontend
 
 import (
 	"github.com/gin-gonic/gin"
@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// Path: "/"
 func ShowMainPage(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		boards, err := db.GetBoards()
@@ -15,7 +16,7 @@ func ShowMainPage(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		Render(ctx, cfg, http.StatusOK, "index.html.tmpl", gin.H{
+		render(ctx, cfg, http.StatusOK, "index.html.tmpl", gin.H{
 			"boards": boards,
 		})
 	}

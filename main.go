@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/davidbyttow/govips/v2/vips"
-	"github.com/ordinary-dev/microboard/api"
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/http"
 	"github.com/ordinary-dev/microboard/storage"
 	"github.com/sirupsen/logrus"
 )
@@ -42,6 +42,6 @@ func main() {
 
 	go storage.GenerateMissingPreviews(db, cfg)
 
-	engine := api.GetAPIEngine(db, cfg)
+	engine := http.GetEngine(db, cfg)
 	engine.Run(fmt.Sprintf("%v:%v", cfg.Addr, cfg.Port))
 }

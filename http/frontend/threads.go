@@ -1,4 +1,4 @@
-package views
+package frontend
 
 import (
 	"errors"
@@ -12,10 +12,9 @@ import (
 	"os"
 	"path"
 	"strconv"
-	"time"
 )
 
-func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		form, err := ctx.MultipartForm()
 		if err != nil {
@@ -23,39 +22,24 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		// Get thread info
-		threadID, ok := form.Value["threadID"]
-		if !ok || len(threadID) < 1 {
-			ctx.Error(errors.New("threadID is undefined"))
+		boardCode, ok := form.Value["boardCode"]
+		if !ok || len(boardCode) < 1 {
+			ctx.Error(errors.New("boardCode is undefined"))
 			return
 		}
 
-		threadIDUint, err := strconv.ParseUint(threadID[0], 10, 64)
-		if err != nil {
-			ctx.Error(err)
-			return
-		}
-
-		thread, err := db.GetThread(threadIDUint)
-		if err != nil {
-			ctx.Error(err)
-			return
-		}
-
-		// Get text
 		body, ok := form.Value["body"]
 		if !ok || len(body) < 1 {
 			ctx.Error(errors.New("body is undefined"))
 			return
 		}
 
-		post := database.Post{
-			ThreadID:  threadIDUint,
-			Body:      body[0],
-			CreatedAt: time.Now(),
+		thread := database.Thread{
+			BoardCode: boardCode[0],
 		}
-
-		// Save files
+		firstPost := database.Post{
+			Body: body[0],
+		}
 		dbFiles := make([]database.File, 0)
 
 		files, ok := form.File["files"]
@@ -73,7 +57,7 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 					return
 				}
 
-				filepath, mimetype, err := storage.SaveBuffer(cfg, buf, thread.BoardCode)
+				filepath, mimetype, err := storage.SaveBuffer(cfg, buf, boardCode[0])
 				if err != nil {
 					ctx.Error(err)
 					return
@@ -97,15 +81,47 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			}
 		}
 
-		// Save post
-		err = db.CreatePost(&post, dbFiles)
+		if err := db.CreateThread(&thread, &firstPost, dbFiles); err != nil {
+			ctx.Error(err)
+			return
+		}
+
+		go storage.GeneratePreviewsForPost(db, cfg, firstPost.ID)
+
+		board, err := db.GetBoard(thread.BoardCode)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		go storage.GeneratePreviewsForPost(db, cfg, post.ID)
+		ctx.Redirect(http.StatusFound, fmt.Sprintf("/boards/%v", board.Code))
+	}
+}
 
-		ctx.Redirect(http.StatusFound, fmt.Sprintf("/threads/%v", threadIDUint))
+func ShowThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		threadID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+
+		posts, err := db.GetPostsFromThread(threadID)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+
+		thread, err := db.GetThread(threadID)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+
+		render(ctx, cfg, http.StatusOK, "thread.html.tmpl", gin.H{
+			"posts":     posts,
+			"threadID":  threadID,
+			"boardCode": thread.BoardCode,
+		})
 	}
 }

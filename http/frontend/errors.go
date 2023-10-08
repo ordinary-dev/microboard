@@ -1,4 +1,4 @@
-package views
+package frontend
 
 import (
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,7 @@ func HtmlErrorHandler(cfg *config.Config) gin.HandlerFunc {
 
 		for idx, err := range ctx.Errors {
 			if idx == 0 {
-				Render(ctx, cfg, http.StatusInternalServerError, "error.html.tmpl", gin.H{
+				render(ctx, cfg, http.StatusInternalServerError, "error.html.tmpl", gin.H{
 					"error": err.Error(),
 				})
 				ctx.Abort()

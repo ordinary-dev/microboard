@@ -1,4 +1,4 @@
-package views
+package frontend
 
 import (
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import (
 
 func ShowLoginForm(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		Render(ctx, cfg, http.StatusOK, "auth.html.tmpl", gin.H{})
+		render(ctx, cfg, http.StatusOK, "auth.html.tmpl", gin.H{})
 	}
 }
 
@@ -47,18 +47,12 @@ func AuthenticationMiddleware(db *database.DB, cfg *config.Config) gin.HandlerFu
 	return func(ctx *gin.Context) {
 		token, err := ctx.Cookie("microboard-token")
 		if err != nil {
-			Render(ctx, cfg, http.StatusUnauthorized, "error.html.tmpl", gin.H{
-				"error": err.Error(),
-			})
-			ctx.Abort()
+			renderError(ctx, cfg, http.StatusUnauthorized, err)
 			return
 		}
 
 		if _, err := db.ValidateAccessToken(token); err != nil {
-			Render(ctx, cfg, http.StatusUnauthorized, "error.html.tmpl", gin.H{
-				"error": err.Error(),
-			})
-			ctx.Abort()
+			renderError(ctx, cfg, http.StatusUnauthorized, err)
 		}
 	}
 }

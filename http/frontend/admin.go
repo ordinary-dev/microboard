@@ -1,4 +1,4 @@
-package views
+package frontend
 
 import (
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ func ShowAdminPanel(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		Render(ctx, cfg, http.StatusOK, "admin.html.tmpl", gin.H{
+		render(ctx, cfg, http.StatusOK, "admin.html.tmpl", gin.H{
 			"boards": boards,
 		})
 	}
