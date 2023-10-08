@@ -18,6 +18,8 @@ type AuthForm struct {
 	Password string `form:"password" binding:"required"`
 }
 
+// Path: "/login"
+// Method: "POST"
 func Authenticate(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var authForm AuthForm
@@ -43,7 +45,7 @@ func Authenticate(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func AuthenticationMiddleware(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func AuthorizationMiddleware(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, err := ctx.Cookie("microboard-token")
 		if err != nil {

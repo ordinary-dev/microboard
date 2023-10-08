@@ -48,7 +48,7 @@ func ConfigureFrontend(engine *gin.Engine, db *database.DB, cfg *config.Config) 
 
 	// Secret pages
 	protectedFrontend := frontend.Group("/")
-	protectedFrontend.Use(AuthenticationMiddleware(db, cfg))
+	protectedFrontend.Use(AuthorizationMiddleware(db, cfg))
 
 	protectedFrontend.GET("/admin-panel", ShowAdminPanel(db, cfg))
 

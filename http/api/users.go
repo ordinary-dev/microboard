@@ -53,7 +53,6 @@ func CreateUser(db *database.DB) gin.HandlerFunc {
 
 // Get an access token for the user.
 // At the moment, the token is valid for 24 hours.
-// It should be saved in the "microboard-token" cookie.
 //
 // POST /api/v0/users/token
 func GetAccessToken(db *database.DB) gin.HandlerFunc {
