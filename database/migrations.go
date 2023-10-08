@@ -12,7 +12,7 @@ func Migrate(cfg *config.Config) error {
 	logrus.Debug("Applying migrations")
 
 	m, err := migrate.New(
-		"file://migrations",
+		"file://database/migrations",
 		getDbUrl(cfg, "pgx5"),
 	)
 	if err != nil {
