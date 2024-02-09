@@ -2,6 +2,7 @@ package frontend
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/ordinary-dev/microboard/config"
 )
 

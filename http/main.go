@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/ordinary-dev/microboard/database"
 	"github.com/ordinary-dev/microboard/http/api"

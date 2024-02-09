@@ -1,10 +1,11 @@
 package storage
 
 import (
-	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
 	"os"
 	"path"
+
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
 )
 
 // Create the necessary directories for storing user files.

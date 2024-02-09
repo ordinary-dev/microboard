@@ -3,9 +3,11 @@ package database
 import (
 	"context"
 	"fmt"
+
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/ordinary-dev/microboard/config"
 	"github.com/sirupsen/logrus"
+
+	"github.com/ordinary-dev/microboard/config"
 )
 
 type DB struct {

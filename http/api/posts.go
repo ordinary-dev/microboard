@@ -1,11 +1,13 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/database"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/ordinary-dev/microboard/database"
 )
 
 func GetPosts(db *database.DB) gin.HandlerFunc {

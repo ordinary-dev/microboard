@@ -1,11 +1,13 @@
 package frontend
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
 	"html/template"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
 )
 
 // Set up urls for the frontend.

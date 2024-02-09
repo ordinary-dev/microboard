@@ -3,16 +3,18 @@ package storage
 import (
 	"errors"
 	"fmt"
-	"github.com/davidbyttow/govips/v2/vips"
-	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
-	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/davidbyttow/govips/v2/vips"
+	"github.com/sirupsen/logrus"
+
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
 )
 
 // Image size in pixels.

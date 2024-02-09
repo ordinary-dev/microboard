@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/davidbyttow/govips/v2/vips"
+	"github.com/sirupsen/logrus"
+
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/ordinary-dev/microboard/database"
 	"github.com/ordinary-dev/microboard/http"
 	"github.com/ordinary-dev/microboard/storage"
-	"github.com/sirupsen/logrus"
 )
 
 func main() {

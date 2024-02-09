@@ -1,10 +1,12 @@
 package frontend
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/config"
-	"github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
+	"github.com/ordinary-dev/microboard/config"
 )
 
 func HtmlErrorHandler(cfg *config.Config) gin.HandlerFunc {

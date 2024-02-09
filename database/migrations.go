@@ -4,8 +4,9 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/ordinary-dev/microboard/config"
 	"github.com/sirupsen/logrus"
+
+	"github.com/ordinary-dev/microboard/config"
 )
 
 func Migrate(cfg *config.Config) error {

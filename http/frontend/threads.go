@@ -3,15 +3,17 @@ package frontend
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
-	"github.com/ordinary-dev/microboard/storage"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/storage"
 )
 
 func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {

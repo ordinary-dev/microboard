@@ -2,9 +2,11 @@ package api
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/database"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/ordinary-dev/microboard/database"
 )
 
 type User struct {

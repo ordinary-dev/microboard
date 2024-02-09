@@ -1,10 +1,12 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/ordinary-dev/microboard/database"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/ordinary-dev/microboard/database"
 )
 
 func GetThreads(db *database.DB) gin.HandlerFunc {

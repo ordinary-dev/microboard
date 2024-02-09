@@ -1,12 +1,14 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/ordinary-dev/microboard/database"
 	"github.com/ordinary-dev/microboard/storage"
-	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func CreateBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {

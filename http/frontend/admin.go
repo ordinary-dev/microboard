@@ -1,10 +1,12 @@
 package frontend
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/ordinary-dev/microboard/database"
-	"net/http"
 )
 
 func ShowAdminPanel(db *database.DB, cfg *config.Config) gin.HandlerFunc {

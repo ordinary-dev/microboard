@@ -6,10 +6,12 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"errors"
-	"github.com/jackc/pgx/v5"
-	"github.com/ordinary-dev/microboard/config"
-	"golang.org/x/crypto/argon2"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/argon2"
+
+	"github.com/ordinary-dev/microboard/config"
 )
 
 const (
