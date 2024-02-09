@@ -4,7 +4,15 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      github-deps:
+        patterns:
+          - "*"
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      go-deps:
+        patterns:
+          - "*"
