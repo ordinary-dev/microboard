@@ -32,7 +32,7 @@ type PostWithFiles struct {
 }
 
 func (db *DB) CreatePost(post *Post, files []File) error {
-	tx, err := db.pool.Begin(context.Background())
+	tx, err := db.Pool.Begin(context.Background())
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (db *DB) GetPostsFromThread(threadID uint64) ([]PostWithFiles, error) {
 		"threadID": threadID,
 	}
 
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (db *DB) GetPostsWithMissingPreviews() ([]Post, error) {
         ON files.post_id = posts.id
         WHERE files.preview IS NULL`
 
-	rows, err := db.pool.Query(context.Background(), query)
+	rows, err := db.Pool.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (db *DB) DeletePost(postID uint64) error {
 		"deletedAt": time.Now(),
 	}
 
-	cmdTag, err := db.pool.Exec(context.Background(), query, args)
+	cmdTag, err := db.Pool.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}
@@ -190,7 +190,7 @@ func (db *DB) GetLatestPostsFromThread(threadID uint64) ([]PostWithFiles, error)
 		"threadID": threadID,
 	}
 
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,7 @@ import (
 )
 
 type DB struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
 
 func GetDatabaseConnection(cfg *config.Config) (*DB, error) {
@@ -25,7 +25,7 @@ func GetDatabaseConnection(cfg *config.Config) (*DB, error) {
 	}
 
 	db := DB{
-		pool: dbpool,
+		Pool: dbpool,
 	}
 
 	return &db, nil

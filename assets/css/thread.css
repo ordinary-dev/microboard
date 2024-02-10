@@ -44,3 +44,14 @@
   margin-bottom: 2em;
   display: none;
 }
+
+.captcha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.captcha input[type="text"] {
+  flex-grow: 1;
+}

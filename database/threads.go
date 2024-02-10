@@ -40,7 +40,7 @@ type ThreadWithFirstAndLastPosts struct {
 // Thread ID and post ID will be filled.
 // The "CreatedAt" and "UpdatedAt" fields will be overwritten.
 func (db *DB) CreateThread(thread *Thread, post *Post, files []File) error {
-	tx, err := db.pool.Begin(context.Background())
+	tx, err := db.Pool.Begin(context.Background())
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (db *DB) GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirst
 		"limit":     limit,
 		"offset":    offset,
 	}
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (db *DB) GetThread(threadID uint64) (*Thread, error) {
 	args := pgx.NamedArgs{
 		"threadID": threadID,
 	}
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (db *DB) GetThreadCount(boardCode string) (int64, error) {
 		"boardCode": boardCode,
 	}
 	var count int64
-	err := db.pool.QueryRow(context.Background(), query, args).Scan(&count)
+	err := db.Pool.QueryRow(context.Background(), query, args).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -195,7 +195,7 @@ func (db *DB) DeleteThread(threadID uint64) error {
 		"deletedAt": time.Now(),
 		"threadID":  threadID,
 	}
-	cmdTag, err := db.pool.Exec(context.Background(), query, args)
+	cmdTag, err := db.Pool.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}

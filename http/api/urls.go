@@ -29,6 +29,8 @@ func ConfigureAPI(engine *gin.Engine, db *database.DB, cfg *config.Config) {
 	v0.GET("/posts", GetPosts(db))
 	v0.POST("/posts", CreatePost(db))
 
+	v0.GET("/captcha/:id", ShowCaptcha(db.Pool))
+
 	// Protected API routes (admin-only)
 	protectedAPI := v0.Group("/")
 	protectedAPI.Use(AuthorizationMiddleware(db, cfg))

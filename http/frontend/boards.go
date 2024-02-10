@@ -10,6 +10,7 @@ import (
 
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/database/captchas"
 	"github.com/ordinary-dev/microboard/storage"
 )
 
@@ -65,10 +66,17 @@ func ShowBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			pageCount = pageLimit
 		}
 
+		captcha, err := captchas.CreateCaptcha(ctx, db.Pool)
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+
 		render(ctx, cfg, http.StatusOK, "board.html.tmpl", gin.H{
 			"board":     board,
 			"threads":   threads,
 			"pageCount": pageCount,
+			"captchaID": captcha.ID.String(),
 		})
 	}
 }

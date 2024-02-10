@@ -46,7 +46,7 @@ func (db *DB) CreateBoard(board *Board) error {
 		"unlisted":    board.Unlisted,
 	}
 
-	_, err := db.pool.Exec(context.Background(), query, args)
+	_, err := db.Pool.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (db *DB) CreateBoard(board *Board) error {
 func (db *DB) GetBoards() ([]Board, error) {
 	query := `SELECT * FROM boards ORDER BY code`
 
-	rows, err := db.pool.Query(context.Background(), query)
+	rows, err := db.Pool.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (db *DB) GetBoard(boardCode string) (*Board, error) {
 		"code": boardCode,
 	}
 
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (db *DB) UpdateBoard(board *Board) error {
 		"unlisted":    board.Unlisted,
 	}
 
-	cmdTag, err := db.pool.Exec(context.Background(), query, args)
+	cmdTag, err := db.Pool.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}

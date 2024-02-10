@@ -42,6 +42,13 @@
           name="files"
           multiple
         />
+
+        <div class="captcha">
+          <img src="/api/v0/captcha/{{ .captchaID }}" />
+          <input type="hidden" name="captchaID" value="{{ .captchaID }}" />
+          <input type="text" name="answer" placeholder="Captcha (case insensitive)" required />
+        </div>
+
         <button>Post</button>
       </form>
       <button id="newThreadBtn" onclick="showThreadForm()">

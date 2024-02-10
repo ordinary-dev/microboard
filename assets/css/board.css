@@ -127,3 +127,14 @@
     text-decoration: none;
     border-radius: 5px;
 }
+
+.captcha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.captcha input[type="text"] {
+  flex-grow: 1;
+}

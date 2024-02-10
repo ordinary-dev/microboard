@@ -39,7 +39,7 @@ func (db *DB) CreateFile(file *File) error {
 		"preview":  file.Preview,
 	}
 
-	err := db.pool.QueryRow(context.Background(), query, args).Scan(&file.ID)
+	err := db.Pool.QueryRow(context.Background(), query, args).Scan(&file.ID)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (db *DB) GetFilesByPostID(postID uint64) ([]File, error) {
 		"postID": postID,
 	}
 
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (db *DB) GetFilesWithoutPreview(postID uint64) ([]File, error) {
 		"postID": postID,
 	}
 
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (db *DB) UpdateFilePreview(file *File) error {
 		"id":      file.ID,
 	}
 
-	cmdTag, err := db.pool.Exec(context.Background(), query, args)
+	cmdTag, err := db.Pool.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}

@@ -11,9 +11,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/ordinary-dev/microboard/config"
 	"github.com/ordinary-dev/microboard/database"
+	dbcaptchas "github.com/ordinary-dev/microboard/database/captchas"
 	"github.com/ordinary-dev/microboard/storage"
 )
 
@@ -22,6 +24,36 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 		form, err := ctx.MultipartForm()
 		if err != nil {
 			ctx.Error(err)
+			return
+		}
+
+		// Validate captcha
+		captchaIDText, ok := form.Value["captchaID"]
+		if !ok || len(captchaIDText) < 1 {
+			ctx.Error(errors.New("captcha id is undefined"))
+			return
+		}
+
+		captchaID, err := uuid.Parse(captchaIDText[0])
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+
+		captchaAnswer, ok := form.Value["answer"]
+		if !ok || len(captchaAnswer) < 1 {
+			ctx.Error(errors.New("captcha answer is undefined"))
+			return
+		}
+
+		isCaptchaValid, err := dbcaptchas.ValidateCaptcha(ctx, db.Pool, captchaID, captchaAnswer[0])
+		if err != nil {
+			ctx.Error(err)
+			return
+		}
+
+		if !isCaptchaValid {
+			ctx.Error(errors.New("captcha is invalid"))
 			return
 		}
 

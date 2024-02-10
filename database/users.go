@@ -96,7 +96,7 @@ func (db *DB) CreateAdmin(username string, password string) (*Admin, error) {
 		Username: username,
 	}
 
-	err = db.pool.QueryRow(context.Background(), query, args).Scan(&admin.ID)
+	err = db.Pool.QueryRow(context.Background(), query, args).Scan(&admin.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (db *DB) getAdminByUsername(username string) (*adminWithHash, error) {
 		Username: username,
 	}
 
-	err := db.pool.QueryRow(context.Background(), query, args).Scan(&admin.ID, &admin.Salt, &admin.Hash)
+	err := db.Pool.QueryRow(context.Background(), query, args).Scan(&admin.ID, &admin.Salt, &admin.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
 		"adminID": adminID,
 	}
 
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
 		"createdAt": now,
 	}
 
-	_, err = db.pool.Exec(context.Background(), query, args)
+	_, err = db.Pool.Exec(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +216,7 @@ func (db *DB) ValidateAccessToken(tokenValue string) (*AccessToken, error) {
 		"value": tokenValue,
 	}
 
-	rows, err := db.pool.Query(context.Background(), query, args)
+	rows, err := db.Pool.Query(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func (db *DB) ValidateAccessToken(tokenValue string) (*AccessToken, error) {
 func (db *DB) GetAdminCount() (int64, error) {
 	query := `SELECT COUNT(*) FROM admins`
 	var count int64
-	err := db.pool.QueryRow(context.Background(), query).Scan(&count)
+	err := db.Pool.QueryRow(context.Background(), query).Scan(&count)
 	if err != nil {
 		return -1, err
 	}
