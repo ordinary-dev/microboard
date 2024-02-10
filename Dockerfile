@@ -22,7 +22,8 @@ WORKDIR /app
 COPY --from=builder /app/main /usr/local/bin/microboard
 COPY assets ./assets
 COPY templates ./templates
-COPY migrations ./migrations
+RUN mkdir database
+COPY database/migrations ./database/migrations
 
 RUN mkdir /app/uploads
 
