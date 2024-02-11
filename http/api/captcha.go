@@ -7,13 +7,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/ordinary-dev/microboard/captcha"
-	dbcaptchas "github.com/ordinary-dev/microboard/database/captchas"
+	dbcaptchas "github.com/ordinary-dev/microboard/db/captchas"
 )
 
-func ShowCaptcha(db *pgxpool.Pool) gin.HandlerFunc {
+func ShowCaptcha() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		captchaIDText := ctx.Param("id")
 		captchaID, err := uuid.Parse(captchaIDText)
@@ -22,7 +21,7 @@ func ShowCaptcha(db *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
-		answer, err := dbcaptchas.GetAnswer(ctx, db, captchaID)
+		answer, err := dbcaptchas.GetAnswer(ctx, captchaID)
 		if err != nil {
 			ctx.Error(err)
 			return

@@ -13,12 +13,15 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
-	"github.com/ordinary-dev/microboard/database/captchas"
+	"github.com/ordinary-dev/microboard/db/boards"
+	"github.com/ordinary-dev/microboard/db/captchas"
+	"github.com/ordinary-dev/microboard/db/files"
+	"github.com/ordinary-dev/microboard/db/posts"
+	"github.com/ordinary-dev/microboard/db/threads"
 	"github.com/ordinary-dev/microboard/storage"
 )
 
-func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func CreateThread(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		form, err := ctx.MultipartForm()
 		if err != nil {
@@ -45,7 +48,7 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		isCaptchaValid, err := captchas.ValidateCaptcha(ctx, db.Pool, captchaID, captchaAnswer[0])
+		isCaptchaValid, err := captchas.ValidateCaptcha(ctx, captchaID, captchaAnswer[0])
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -69,17 +72,17 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		thread := database.Thread{
+		thread := threads.Thread{
 			BoardCode: boardCode[0],
 		}
-		firstPost := database.Post{
+		firstPost := posts.Post{
 			Body: body[0],
 		}
-		dbFiles := make([]database.File, 0)
+		dbFiles := make([]files.File, 0)
 
-		files, ok := form.File["files"]
+		fileList, ok := form.File["files"]
 		if ok {
-			for _, fileHeader := range files {
+			for _, fileHeader := range fileList {
 				file, err := fileHeader.Open()
 				if err != nil {
 					ctx.Error(err)
@@ -106,7 +109,7 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 					}
 				}
 
-				dbFile := database.File{
+				dbFile := files.File{
 					Filepath: filepath,
 					Name:     fileHeader.Filename,
 					Size:     uint64(fileHeader.Size),
@@ -116,14 +119,14 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			}
 		}
 
-		if err := db.CreateThread(&thread, &firstPost, dbFiles); err != nil {
+		if err := threads.CreateThread(&thread, &firstPost, dbFiles); err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		go storage.GeneratePreviewsForPost(db, cfg, firstPost.ID)
+		go storage.GeneratePreviewsForPost(cfg, firstPost.ID)
 
-		board, err := db.GetBoard(thread.BoardCode)
+		board, err := boards.GetBoard(thread.BoardCode)
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -133,7 +136,7 @@ func CreateThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func ShowThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func ShowThread(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		threadID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -141,19 +144,19 @@ func ShowThread(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		posts, err := db.GetPostsFromThread(threadID)
+		posts, err := posts.GetPostsFromThread(threadID)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		thread, err := db.GetThread(threadID)
+		thread, err := threads.GetThread(threadID)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		captcha, err := captchas.CreateCaptcha(ctx, db.Pool)
+		captcha, err := captchas.CreateCaptcha(ctx)
 		if err != nil {
 			ctx.Error(err)
 			return

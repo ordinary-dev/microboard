@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/db/users"
 )
 
 func ShowLoginForm(cfg *config.Config) gin.HandlerFunc {
@@ -22,7 +22,7 @@ type AuthForm struct {
 
 // Path: "/login"
 // Method: "POST"
-func Authenticate(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func Authenticate(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var authForm AuthForm
 		if err := ctx.ShouldBind(&authForm); err != nil {
@@ -30,13 +30,13 @@ func Authenticate(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		admin, err := db.VerifyPassword(authForm.Username, authForm.Password)
+		admin, err := users.VerifyPassword(authForm.Username, authForm.Password)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		token, err := db.GetAccessToken(admin.ID)
+		token, err := users.GetAccessToken(admin.ID)
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -47,7 +47,7 @@ func Authenticate(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func AuthorizationMiddleware(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func AuthorizationMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token, err := ctx.Cookie("microboard-token")
 		if err != nil {
@@ -55,7 +55,7 @@ func AuthorizationMiddleware(db *database.DB, cfg *config.Config) gin.HandlerFun
 			return
 		}
 
-		if _, err := db.ValidateAccessToken(token); err != nil {
+		if _, err := users.ValidateAccessToken(token); err != nil {
 			renderError(ctx, cfg, http.StatusUnauthorized, err)
 		}
 	}

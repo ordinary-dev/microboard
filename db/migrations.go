@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"github.com/golang-migrate/migrate/v4"

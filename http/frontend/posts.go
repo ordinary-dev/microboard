@@ -14,12 +14,14 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
-	dbcaptchas "github.com/ordinary-dev/microboard/database/captchas"
+	dbcaptchas "github.com/ordinary-dev/microboard/db/captchas"
+	"github.com/ordinary-dev/microboard/db/files"
+	"github.com/ordinary-dev/microboard/db/posts"
+	"github.com/ordinary-dev/microboard/db/threads"
 	"github.com/ordinary-dev/microboard/storage"
 )
 
-func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func CreatePost(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		form, err := ctx.MultipartForm()
 		if err != nil {
@@ -46,7 +48,7 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		isCaptchaValid, err := dbcaptchas.ValidateCaptcha(ctx, db.Pool, captchaID, captchaAnswer[0])
+		isCaptchaValid, err := dbcaptchas.ValidateCaptcha(ctx, captchaID, captchaAnswer[0])
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -70,7 +72,7 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		thread, err := db.GetThread(threadIDUint)
+		thread, err := threads.GetThread(threadIDUint)
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -83,18 +85,18 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		post := database.Post{
+		post := posts.Post{
 			ThreadID:  threadIDUint,
 			Body:      body[0],
 			CreatedAt: time.Now(),
 		}
 
 		// Save files
-		dbFiles := make([]database.File, 0)
+		dbFiles := make([]files.File, 0)
 
-		files, ok := form.File["files"]
+		fileList, ok := form.File["files"]
 		if ok {
-			for _, fileHeader := range files {
+			for _, fileHeader := range fileList {
 				file, err := fileHeader.Open()
 				if err != nil {
 					ctx.Error(err)
@@ -121,7 +123,7 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 					}
 				}
 
-				dbFile := database.File{
+				dbFile := files.File{
 					Filepath: filepath,
 					Name:     fileHeader.Filename,
 					Size:     uint64(fileHeader.Size),
@@ -132,13 +134,13 @@ func CreatePost(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 		}
 
 		// Save post
-		err = db.CreatePost(&post, dbFiles)
+		err = posts.CreatePost(&post, dbFiles)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		go storage.GeneratePreviewsForPost(db, cfg, post.ID)
+		go storage.GeneratePreviewsForPost(cfg, post.ID)
 
 		ctx.Redirect(http.StatusFound, fmt.Sprintf("/threads/%v", threadIDUint))
 	}

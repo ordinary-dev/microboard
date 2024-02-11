@@ -1,10 +1,13 @@
-package database
+package threads
 
 import (
 	"context"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/ordinary-dev/microboard/db"
+	"github.com/ordinary-dev/microboard/db/files"
+	"github.com/ordinary-dev/microboard/db/posts"
 )
 
 type Thread struct {
@@ -25,22 +28,22 @@ type Thread struct {
 
 // The same structure as a regular thread, but with additional fields from the post.
 type ThreadWithFirstAndLastPosts struct {
-	ID            uint64          `json:"id"`
-	BoardCode     string          `json:"boardCode" db:"board_code"`
-	UpdatedAt     time.Time       `json:"updatedAt" db:"updated_at"`
-	DeletedAt     *time.Time      `json:"deletedAt" db:"deleted_at"`
-	PostID        uint64          `json:"postID" db:"post_id"`
-	Body          string          `json:"body"`
-	PostCreatedAt time.Time       `json:"postCreatedAt" db:"post_created_at"`
-	Files         []File          `json:"file"`
-	LatestPosts   []PostWithFiles `json:"lastPosts"`
+	ID            uint64                `json:"id"`
+	BoardCode     string                `json:"boardCode" db:"board_code"`
+	UpdatedAt     time.Time             `json:"updatedAt" db:"updated_at"`
+	DeletedAt     *time.Time            `json:"deletedAt" db:"deleted_at"`
+	PostID        uint64                `json:"postID" db:"post_id"`
+	Body          string                `json:"body"`
+	PostCreatedAt time.Time             `json:"postCreatedAt" db:"post_created_at"`
+	Files         []files.File          `json:"file"`
+	LatestPosts   []posts.PostWithFiles `json:"lastPosts"`
 }
 
 // Start a new thread.
 // Thread ID and post ID will be filled.
 // The "CreatedAt" and "UpdatedAt" fields will be overwritten.
-func (db *DB) CreateThread(thread *Thread, post *Post, files []File) error {
-	tx, err := db.Pool.Begin(context.Background())
+func CreateThread(thread *Thread, post *posts.Post, files []files.File) error {
+	tx, err := db.DB.Begin(context.Background())
 	if err != nil {
 		return err
 	}
@@ -94,17 +97,19 @@ func (db *DB) CreateThread(thread *Thread, post *Post, files []File) error {
 
 	// Commit transaction
 	err = tx.Commit(context.Background())
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // Get threads that haven't been deleted.
-func (db *DB) GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirstAndLastPosts, error) {
+func GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirstAndLastPosts, error) {
 	query := `SELECT * FROM (
-        SELECT DISTINCT ON (threads.id) threads.id, threads.board_code, threads.updated_at, posts.body, posts.id AS post_id, posts.created_at AS post_created_at
+        SELECT DISTINCT ON (threads.id)
+            threads.id,
+            threads.board_code,
+            threads.updated_at,
+            posts.body,
+            posts.id AS post_id,
+            posts.created_at AS post_created_at
         FROM threads
 
         INNER JOIN posts
@@ -124,84 +129,56 @@ func (db *DB) GetThreads(boardCode string, limit, offset int) ([]ThreadWithFirst
 		"limit":     limit,
 		"offset":    offset,
 	}
-	rows, err := db.Pool.Query(context.Background(), query, args)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
+	rows, _ := db.DB.Query(context.Background(), query, args)
 	threads, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[ThreadWithFirstAndLastPosts])
 	if err != nil {
 		return nil, err
 	}
 
 	for idx := range threads {
-		files, err := db.GetFilesByPostID(threads[idx].PostID)
+		threads[idx].Files, err = files.GetFilesByPostID(threads[idx].PostID)
 		if err != nil {
 			return nil, err
 		}
 
-		latestPosts, err := db.GetLatestPostsFromThread(threads[idx].ID)
+		threads[idx].LatestPosts, err = posts.GetLatestPostsFromThread(threads[idx].ID)
 		if err != nil {
 			return nil, err
 		}
-
-		threads[idx].Files = files
-		threads[idx].LatestPosts = latestPosts
 	}
 
 	return threads, nil
 }
 
 // Get thread by id.
-func (db *DB) GetThread(threadID uint64) (*Thread, error) {
-	query := `SELECT * FROM threads WHERE id = @threadID`
-	args := pgx.NamedArgs{
-		"threadID": threadID,
-	}
-	rows, err := db.Pool.Query(context.Background(), query, args)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	thread, err := pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[Thread])
-	if err != nil {
-		return nil, err
-	}
-
-	return &thread, nil
+func GetThread(threadID uint64) (Thread, error) {
+	query := `SELECT * FROM threads WHERE id = $1`
+	rows, _ := db.DB.Query(context.Background(), query, threadID)
+	return pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[Thread])
 }
 
 // Get thread count.
-func (db *DB) GetThreadCount(boardCode string) (int64, error) {
-	query := `SELECT COUNT(*) FROM threads WHERE board_code = @boardCode AND deleted_at IS NULL`
-	args := pgx.NamedArgs{
-		"boardCode": boardCode,
-	}
+func GetThreadCount(boardCode string) (int64, error) {
+	query := `SELECT COUNT(*) FROM threads WHERE board_code = $1 AND deleted_at IS NULL`
 	var count int64
-	err := db.Pool.QueryRow(context.Background(), query, args).Scan(&count)
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
+	err := db.DB.QueryRow(context.Background(), query, boardCode).Scan(&count)
+	return count, err
 }
 
 // Hides the thread from public access.
-func (db *DB) DeleteThread(threadID uint64) error {
+func DeleteThread(threadID uint64) error {
 	query := `UPDATE threads SET deleted_at = @deletedAt WHERE id = @threadID`
 	args := pgx.NamedArgs{
 		"deletedAt": time.Now(),
 		"threadID":  threadID,
 	}
-	cmdTag, err := db.Pool.Exec(context.Background(), query, args)
+	cmdTag, err := db.DB.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}
 
 	if cmdTag.RowsAffected() != 1 {
-		return ErrNoRowsWereAffected
+		return pgx.ErrNoRows
 	}
 
 	return nil

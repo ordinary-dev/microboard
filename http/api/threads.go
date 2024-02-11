@@ -8,11 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/ordinary-dev/microboard/database"
-	dbcaptchas "github.com/ordinary-dev/microboard/database/captchas"
+	dbcaptchas "github.com/ordinary-dev/microboard/db/captchas"
+	"github.com/ordinary-dev/microboard/db/files"
+	"github.com/ordinary-dev/microboard/db/posts"
+	"github.com/ordinary-dev/microboard/db/threads"
 )
 
-func GetThreads(db *database.DB) gin.HandlerFunc {
+func GetThreads() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		boardCode := ctx.Query("boardCode")
 
@@ -32,14 +34,14 @@ func GetThreads(db *database.DB) gin.HandlerFunc {
 			limit = 100
 		}
 
-		threads, err := db.GetThreads(boardCode, limit, offset)
+		threadList, err := threads.GetThreads(boardCode, limit, offset)
 
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		ctx.JSON(http.StatusOK, threads)
+		ctx.JSON(http.StatusOK, threadList)
 	}
 }
 
@@ -51,7 +53,7 @@ type NewThread struct {
 	CaptchaAnswer string `json:"captchaAnswer" binding:"required"`
 }
 
-func CreateThread(db *database.DB) gin.HandlerFunc {
+func CreateThread() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var requestData NewThread
 		if err := ctx.ShouldBindJSON(&requestData); err != nil {
@@ -66,7 +68,7 @@ func CreateThread(db *database.DB) gin.HandlerFunc {
 			return
 		}
 
-		isCaptchaValid, err := dbcaptchas.ValidateCaptcha(ctx, db.Pool, captchaID, requestData.CaptchaAnswer)
+		isCaptchaValid, err := dbcaptchas.ValidateCaptcha(ctx, captchaID, requestData.CaptchaAnswer)
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -78,14 +80,14 @@ func CreateThread(db *database.DB) gin.HandlerFunc {
 		}
 
 		// Create thread
-		thread := database.Thread{
+		thread := threads.Thread{
 			BoardCode: requestData.BoardCode,
 		}
-		firstPost := database.Post{
+		firstPost := posts.Post{
 			Body: requestData.Body,
 		}
 
-		if err := db.CreateThread(&thread, &firstPost, []database.File{}); err != nil {
+		if err := threads.CreateThread(&thread, &firstPost, []files.File{}); err != nil {
 			ctx.Error(err)
 			return
 		}

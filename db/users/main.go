@@ -1,4 +1,4 @@
-package database
+package users
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/argon2"
 
 	"github.com/ordinary-dev/microboard/config"
+	"github.com/ordinary-dev/microboard/db"
 )
 
 const (
@@ -51,12 +52,12 @@ type AccessToken struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func (db *DB) CreateDefaultUser(cfg *config.Config) error {
+func CreateDefaultUser(cfg *config.Config) error {
 	if cfg.DefaultUsername == "" || cfg.DefaultPassword == "" {
 		return ErrEmptyUsernameOrPassword
 	}
 
-	count, err := db.GetAdminCount()
+	count, err := GetAdminCount()
 	if err != nil {
 		return err
 	}
@@ -65,7 +66,7 @@ func (db *DB) CreateDefaultUser(cfg *config.Config) error {
 		return ErrAtLeastOneUserExists
 	}
 
-	if _, err := db.CreateAdmin(cfg.DefaultUsername, cfg.DefaultPassword); err != nil {
+	if _, err := CreateAdmin(cfg.DefaultUsername, cfg.DefaultPassword); err != nil {
 		return err
 	}
 
@@ -74,7 +75,7 @@ func (db *DB) CreateDefaultUser(cfg *config.Config) error {
 
 // Save new admin user in the database.
 // Before calling this function, you need to make sure that the creator has the necessary rights.
-func (db *DB) CreateAdmin(username string, password string) (*Admin, error) {
+func CreateAdmin(username string, password string) (*Admin, error) {
 	salt, err := getRandomBytes(16)
 	if err != nil {
 		return nil, err
@@ -96,16 +97,12 @@ func (db *DB) CreateAdmin(username string, password string) (*Admin, error) {
 		Username: username,
 	}
 
-	err = db.Pool.QueryRow(context.Background(), query, args).Scan(&admin.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &admin, nil
+	err = db.DB.QueryRow(context.Background(), query, args).Scan(&admin.ID)
+	return &admin, err
 }
 
-func (db *DB) VerifyPassword(username string, password string) (*Admin, error) {
-	admin, err := db.getAdminByUsername(username)
+func VerifyPassword(username string, password string) (*Admin, error) {
+	admin, err := getAdminByUsername(username)
 	if err != nil {
 		return nil, err
 	}
@@ -124,33 +121,24 @@ func (db *DB) VerifyPassword(username string, password string) (*Admin, error) {
 	return &adminWithoutHash, nil
 }
 
-func (db *DB) getAdminByUsername(username string) (*adminWithHash, error) {
-	query := `SELECT id, salt, hash FROM admins WHERE username = @username`
-	args := pgx.NamedArgs{
-		"username": username,
-	}
+func getAdminByUsername(username string) (*adminWithHash, error) {
+	query := `SELECT id, salt, hash FROM admins WHERE username = $1`
 
 	admin := adminWithHash{
 		Username: username,
 	}
 
-	err := db.Pool.QueryRow(context.Background(), query, args).Scan(&admin.ID, &admin.Salt, &admin.Hash)
-	if err != nil {
-		return nil, err
-	}
-	return &admin, nil
+	err := db.DB.QueryRow(context.Background(), query, username).Scan(&admin.ID, &admin.Salt, &admin.Hash)
+	return &admin, err
 }
 
 // Get an access token for the user.
 // At the moment, the token is valid for 7 days.
 // It should be saved in the "microboard-token" cookie.
-func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
-	query := `SELECT value, created_at FROM access_tokens WHERE admin_id = @adminID`
-	args := pgx.NamedArgs{
-		"adminID": adminID,
-	}
+func GetAccessToken(adminID int32) (*AccessToken, error) {
+	query := `SELECT value, created_at FROM access_tokens WHERE admin_id = $1`
 
-	rows, err := db.Pool.Query(context.Background(), query, args)
+	rows, err := db.DB.Query(context.Background(), query, adminID)
 	if err != nil {
 		return nil, err
 	}
@@ -190,13 +178,13 @@ func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
 	}
 
 	now := time.Now()
-	args = pgx.NamedArgs{
+	args := pgx.NamedArgs{
 		"value":     token,
 		"adminID":   adminID,
 		"createdAt": now,
 	}
 
-	_, err = db.Pool.Exec(context.Background(), query, args)
+	_, err = db.DB.Exec(context.Background(), query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -210,13 +198,10 @@ func (db *DB) GetAccessToken(adminID int32) (*AccessToken, error) {
 	return &accessToken, nil
 }
 
-func (db *DB) ValidateAccessToken(tokenValue string) (*AccessToken, error) {
-	query := `SELECT admin_id, created_at FROM access_tokens WHERE value = @value`
-	args := pgx.NamedArgs{
-		"value": tokenValue,
-	}
+func ValidateAccessToken(tokenValue string) (*AccessToken, error) {
+	query := `SELECT admin_id, created_at FROM access_tokens WHERE value = $1`
 
-	rows, err := db.Pool.Query(context.Background(), query, args)
+	rows, err := db.DB.Query(context.Background(), query, tokenValue)
 	if err != nil {
 		return nil, err
 	}
@@ -242,14 +227,11 @@ func (db *DB) ValidateAccessToken(tokenValue string) (*AccessToken, error) {
 	return nil, ErrTokenWasNotFound
 }
 
-func (db *DB) GetAdminCount() (int64, error) {
+func GetAdminCount() (int64, error) {
 	query := `SELECT COUNT(*) FROM admins`
 	var count int64
-	err := db.Pool.QueryRow(context.Background(), query).Scan(&count)
-	if err != nil {
-		return -1, err
-	}
-	return count, nil
+	err := db.DB.QueryRow(context.Background(), query).Scan(&count)
+	return count, err
 }
 
 func getRandomBytes(n uint32) ([]byte, error) {

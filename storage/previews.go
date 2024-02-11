@@ -14,29 +14,30 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/db/files"
+	"github.com/ordinary-dev/microboard/db/posts"
 )
 
 // Image size in pixels.
 const PREVIEW_SIZE = 100
 
-func GenerateMissingPreviews(db *database.DB, cfg *config.Config) {
-	posts, err := db.GetPostsWithMissingPreviews()
+func GenerateMissingPreviews(cfg *config.Config) {
+	posts, err := posts.GetPostsWithMissingPreviews()
 	if err != nil {
 		logrus.Error(err)
 		return
 	}
 
 	for _, post := range posts {
-		go GeneratePreviewsForPost(db, cfg, post.ID)
+		go GeneratePreviewsForPost(cfg, post.ID)
 	}
 }
 
 // Requests all files from the post without previews and tries to create them.
-func GeneratePreviewsForPost(db *database.DB, cfg *config.Config, postID uint64) {
+func GeneratePreviewsForPost(cfg *config.Config, postID uint64) {
 	logrus.Debugf("Generating preview for post #%v", postID)
 
-	files, err := db.GetFilesWithoutPreview(postID)
+	files, err := files.GetFilesWithoutPreview(postID)
 	if err != nil {
 		logrus.Error(err)
 		return
@@ -46,14 +47,14 @@ func GeneratePreviewsForPost(db *database.DB, cfg *config.Config, postID uint64)
 
 	for idx := range files {
 		waitGroup.Add(1)
-		go processFile(db, cfg, &files[idx], &waitGroup)
+		go processFile(cfg, &files[idx], &waitGroup)
 	}
 
 	waitGroup.Wait()
 }
 
 // Generate a preview for a single file.
-func processFile(db *database.DB, cfg *config.Config, file *database.File, waitGroup *sync.WaitGroup) {
+func processFile(cfg *config.Config, file *files.File, waitGroup *sync.WaitGroup) {
 	defer waitGroup.Done()
 
 	var err error
@@ -83,7 +84,7 @@ func processFile(db *database.DB, cfg *config.Config, file *database.File, waitG
 	}
 
 	file.Preview = &filepathWithExt
-	err = db.UpdateFilePreview(file)
+	err = files.UpdateFilePreview(file)
 	if err != nil {
 		logrus.Error(err)
 		return

@@ -7,24 +7,24 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/db/boards"
 	"github.com/ordinary-dev/microboard/storage"
 )
 
-func CreateBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func CreateBoard(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var newBoard database.Board
+		var newBoard boards.Board
 		if err := ctx.ShouldBindJSON(&newBoard); err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		if err := db.CreateBoard(&newBoard); err != nil {
+		if err := boards.CreateBoard(&newBoard); err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		if err := storage.CreateDirs(cfg, db); err != nil {
+		if err := storage.CreateDirs(cfg); err != nil {
 			logrus.Fatal(err)
 		}
 
@@ -32,21 +32,21 @@ func CreateBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func GetBoards(db *database.DB) gin.HandlerFunc {
+func GetBoards() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		boards, err := db.GetBoards()
+		boardList, err := boards.GetBoards()
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		ctx.JSON(http.StatusOK, boards)
+		ctx.JSON(http.StatusOK, boardList)
 	}
 }
 
-func GetBoard(db *database.DB) gin.HandlerFunc {
+func GetBoard() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		board, err := db.GetBoard(ctx.Param("code"))
+		board, err := boards.GetBoard(ctx.Param("code"))
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -56,15 +56,15 @@ func GetBoard(db *database.DB) gin.HandlerFunc {
 	}
 }
 
-func UpdateBoard(db *database.DB) gin.HandlerFunc {
+func UpdateBoard() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var updatedBoard database.Board
+		var updatedBoard boards.Board
 		if err := ctx.ShouldBindJSON(&updatedBoard); err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		if err := db.UpdateBoard(&updatedBoard); err != nil {
+		if err := boards.UpdateBoard(&updatedBoard); err != nil {
 			ctx.Error(err)
 			return
 		}

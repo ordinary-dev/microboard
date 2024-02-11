@@ -9,11 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/ordinary-dev/microboard/database"
-	dbcaptchas "github.com/ordinary-dev/microboard/database/captchas"
+	dbcaptchas "github.com/ordinary-dev/microboard/db/captchas"
+	"github.com/ordinary-dev/microboard/db/files"
+	"github.com/ordinary-dev/microboard/db/posts"
 )
 
-func GetPosts(db *database.DB) gin.HandlerFunc {
+func GetPosts() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		threadID, err := strconv.ParseUint(ctx.Query("threadID"), 10, 64)
 		if err != nil {
@@ -21,13 +22,13 @@ func GetPosts(db *database.DB) gin.HandlerFunc {
 			return
 		}
 
-		posts, err := db.GetPostsFromThread(threadID)
+		postList, err := posts.GetPostsFromThread(threadID)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		ctx.JSON(http.StatusOK, posts)
+		ctx.JSON(http.StatusOK, postList)
 	}
 }
 
@@ -39,7 +40,7 @@ type NewPost struct {
 	CaptchaAnswer string `json:"captchaAnswer" binding:"required"`
 }
 
-func CreatePost(db *database.DB) gin.HandlerFunc {
+func CreatePost() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var requestData NewPost
 		if err := ctx.ShouldBindJSON(&requestData); err != nil {
@@ -54,7 +55,7 @@ func CreatePost(db *database.DB) gin.HandlerFunc {
 			return
 		}
 
-		isCaptchaValid, err := dbcaptchas.ValidateCaptcha(ctx, db.Pool, captchaID, requestData.CaptchaAnswer)
+		isCaptchaValid, err := dbcaptchas.ValidateCaptcha(ctx, captchaID, requestData.CaptchaAnswer)
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -66,13 +67,13 @@ func CreatePost(db *database.DB) gin.HandlerFunc {
 		}
 
 		// Create post
-		post := database.Post{
+		post := posts.Post{
 			ThreadID:  requestData.ThreadID,
 			Body:      requestData.Body,
 			CreatedAt: time.Now(),
 		}
 
-		err = db.CreatePost(&post, []database.File{})
+		err = posts.CreatePost(&post, []files.File{})
 		if err != nil {
 			ctx.Error(err)
 			return

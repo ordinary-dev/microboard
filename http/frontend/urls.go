@@ -7,11 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
 )
 
 // Set up urls for the frontend.
-func ConfigureFrontend(engine *gin.Engine, db *database.DB, cfg *config.Config) {
+func ConfigureFrontend(engine *gin.Engine, cfg *config.Config) {
 	frontend := engine.Group("/")
 	frontend.Use(HtmlErrorHandler(cfg))
 
@@ -37,23 +36,23 @@ func ConfigureFrontend(engine *gin.Engine, db *database.DB, cfg *config.Config) 
 
 	engine.LoadHTMLGlob("templates/*")
 
-	frontend.GET("/", ShowMainPage(db, cfg))
-	frontend.GET("/boards/:code", ShowBoard(db, cfg))
+	frontend.GET("/", ShowMainPage(cfg))
+	frontend.GET("/boards/:code", ShowBoard(cfg))
 
-	frontend.POST("/threads", CreateThread(db, cfg))
-	frontend.GET("/threads/:id", ShowThread(db, cfg))
+	frontend.POST("/threads", CreateThread(cfg))
+	frontend.GET("/threads/:id", ShowThread(cfg))
 
-	frontend.POST("/posts", CreatePost(db, cfg))
+	frontend.POST("/posts", CreatePost(cfg))
 
 	frontend.GET("/login", ShowLoginForm(cfg))
-	frontend.POST("/login", Authenticate(db, cfg))
+	frontend.POST("/login", Authenticate(cfg))
 
 	// Secret pages
 	protectedFrontend := frontend.Group("/")
-	protectedFrontend.Use(AuthorizationMiddleware(db, cfg))
+	protectedFrontend.Use(AuthorizationMiddleware(cfg))
 
-	protectedFrontend.GET("/admin-panel", ShowAdminPanel(db, cfg))
+	protectedFrontend.GET("/admin-panel", ShowAdminPanel(cfg))
 
-	protectedFrontend.POST("/boards", CreateBoard(db, cfg))
-	protectedFrontend.POST("/boards/:code", UpdateBoard(db))
+	protectedFrontend.POST("/boards", CreateBoard(cfg))
+	protectedFrontend.POST("/boards/:code", UpdateBoard())
 }

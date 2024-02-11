@@ -1,10 +1,13 @@
-package database
+package posts
 
 import (
 	"context"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+
+	"github.com/ordinary-dev/microboard/db"
+	"github.com/ordinary-dev/microboard/db/files"
 )
 
 type Post struct {
@@ -23,16 +26,16 @@ type Post struct {
 }
 
 type PostWithFiles struct {
-	ID        uint64     `json:"id"`
-	ThreadID  uint64     `json:"threadID" db:"thread_id"`
-	Body      string     `json:"body"`
-	CreatedAt time.Time  `json:"createdAt" db:"created_at"`
-	DeletedAt *time.Time `json:"deletedAt" db:"deleted_at"`
-	Files     []File     `json:"files"`
+	ID        uint64       `json:"id"`
+	ThreadID  uint64       `json:"threadID" db:"thread_id"`
+	Body      string       `json:"body"`
+	CreatedAt time.Time    `json:"createdAt" db:"created_at"`
+	DeletedAt *time.Time   `json:"deletedAt" db:"deleted_at"`
+	Files     []files.File `json:"files"`
 }
 
-func (db *DB) CreatePost(post *Post, files []File) error {
-	tx, err := db.Pool.Begin(context.Background())
+func CreatePost(post *Post, files []files.File) error {
+	tx, err := db.DB.Begin(context.Background())
 	if err != nil {
 		return err
 	}
@@ -95,82 +98,61 @@ func (db *DB) CreatePost(post *Post, files []File) error {
 
 	// Commit transaction
 	err = tx.Commit(context.Background())
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func (db *DB) GetPostsFromThread(threadID uint64) ([]PostWithFiles, error) {
-	query := `SELECT * FROM posts WHERE thread_id = @threadID`
-	args := pgx.NamedArgs{
-		"threadID": threadID,
-	}
+func GetPostsFromThread(threadID uint64) ([]PostWithFiles, error) {
+	query := `SELECT * FROM posts WHERE thread_id = $1`
 
-	rows, err := db.Pool.Query(context.Background(), query, args)
-	if err != nil {
-		return nil, err
-	}
-
+	rows, _ := db.DB.Query(context.Background(), query, threadID)
 	posts, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[PostWithFiles])
 	if err != nil {
 		return nil, err
 	}
 
 	for idx := range posts {
-		files, err := db.GetFilesByPostID(posts[idx].ID)
+		posts[idx].Files, err = files.GetFilesByPostID(posts[idx].ID)
 		if err != nil {
 			return nil, err
 		}
-		posts[idx].Files = files
 	}
 
 	return posts, nil
 }
 
-func (db *DB) GetPostsWithMissingPreviews() ([]Post, error) {
-	query := `SELECT DISTINCT ON (posts.id) posts.* FROM posts
+func GetPostsWithMissingPreviews() ([]Post, error) {
+	query := `
+        SELECT DISTINCT ON (posts.id) posts.* FROM posts
         INNER JOIN files
         ON files.post_id = posts.id
         WHERE files.preview IS NULL`
 
-	rows, err := db.Pool.Query(context.Background(), query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	posts, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[Post])
-	if err != nil {
-		return nil, err
-	}
-
-	return posts, nil
+	rows, _ := db.DB.Query(context.Background(), query)
+	return pgx.CollectRows(rows, pgx.RowToStructByNameLax[Post])
 }
 
 // Marks a post as deleted (but does not remove it from the database)
-func (db *DB) DeletePost(postID uint64) error {
+func DeletePost(postID uint64) error {
 	query := `UPDATE posts SET deleted_at = @deletedAt WHERE id = @postID`
 	args := pgx.NamedArgs{
 		"postID":    postID,
 		"deletedAt": time.Now(),
 	}
 
-	cmdTag, err := db.Pool.Exec(context.Background(), query, args)
+	cmdTag, err := db.DB.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}
 
 	if cmdTag.RowsAffected() != 1 {
-		return ErrNoRowsWereAffected
+		return pgx.ErrNoRows
 	}
 
 	return nil
 }
 
 // Get 3 latest posts from the thread, not including the first one
-func (db *DB) GetLatestPostsFromThread(threadID uint64) ([]PostWithFiles, error) {
+func GetLatestPostsFromThread(threadID uint64) ([]PostWithFiles, error) {
 	query := `SELECT sub.*
         FROM (
             SELECT * FROM posts
@@ -190,24 +172,17 @@ func (db *DB) GetLatestPostsFromThread(threadID uint64) ([]PostWithFiles, error)
 		"threadID": threadID,
 	}
 
-	rows, err := db.Pool.Query(context.Background(), query, args)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
+	rows, _ := db.DB.Query(context.Background(), query, args)
 	posts, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[PostWithFiles])
 	if err != nil {
 		return nil, err
 	}
 
 	for idx := range posts {
-		files, err := db.GetFilesByPostID(posts[idx].ID)
+		posts[idx].Files, err = files.GetFilesByPostID(posts[idx].ID)
 		if err != nil {
 			return nil, err
 		}
-
-		posts[idx].Files = files
 	}
 
 	return posts, nil

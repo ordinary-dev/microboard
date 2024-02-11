@@ -9,8 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
-	"github.com/ordinary-dev/microboard/database/captchas"
+	"github.com/ordinary-dev/microboard/db/boards"
+	"github.com/ordinary-dev/microboard/db/captchas"
+	"github.com/ordinary-dev/microboard/db/threads"
 	"github.com/ordinary-dev/microboard/storage"
 )
 
@@ -22,7 +23,7 @@ var (
 	ErrInvalidBumpLimit = errors.New("bump limit is invalid")
 )
 
-func ShowBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func ShowBoard(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		boardCode := ctx.Param("code")
 
@@ -37,19 +38,19 @@ func ShowBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 		limit := 10
 		offset := limit * (page - 1)
 
-		board, err := db.GetBoard(boardCode)
+		board, err := boards.GetBoard(boardCode)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		threads, err := db.GetThreads(boardCode, limit, offset)
+		threadList, err := threads.GetThreads(boardCode, limit, offset)
 		if err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		threadCount, err := db.GetThreadCount(boardCode)
+		threadCount, err := threads.GetThreadCount(boardCode)
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -66,7 +67,7 @@ func ShowBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			pageCount = pageLimit
 		}
 
-		captcha, err := captchas.CreateCaptcha(ctx, db.Pool)
+		captcha, err := captchas.CreateCaptcha(ctx)
 		if err != nil {
 			ctx.Error(err)
 			return
@@ -74,16 +75,16 @@ func ShowBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 
 		render(ctx, cfg, http.StatusOK, "board.html.tmpl", gin.H{
 			"board":     board,
-			"threads":   threads,
+			"threads":   threadList,
 			"pageCount": pageCount,
 			"captchaID": captcha.ID.String(),
 		})
 	}
 }
 
-func CreateBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func CreateBoard(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var board database.Board
+		var board boards.Board
 		if err := ctx.ShouldBind(&board); err != nil {
 			ctx.Error(err)
 			return
@@ -114,12 +115,12 @@ func CreateBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		if err := db.CreateBoard(&board); err != nil {
+		if err := boards.CreateBoard(&board); err != nil {
 			ctx.Error(err)
 			return
 		}
 
-		if err := storage.CreateDirs(cfg, db); err != nil {
+		if err := storage.CreateDirs(cfg); err != nil {
 			logrus.Fatal(err)
 		}
 
@@ -127,9 +128,9 @@ func CreateBoard(db *database.DB, cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func UpdateBoard(db *database.DB) gin.HandlerFunc {
+func UpdateBoard() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var board database.Board
+		var board boards.Board
 		if err := ctx.ShouldBind(&board); err != nil {
 			ctx.Error(err)
 			return
@@ -160,7 +161,7 @@ func UpdateBoard(db *database.DB) gin.HandlerFunc {
 			return
 		}
 
-		if err := db.UpdateBoard(&board); err != nil {
+		if err := boards.UpdateBoard(&board); err != nil {
 			ctx.Error(err)
 			return
 		}

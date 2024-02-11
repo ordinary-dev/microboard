@@ -5,11 +5,11 @@ import (
 	"path"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/db/boards"
 )
 
 // Create the necessary directories for storing user files.
-func CreateDirs(cfg *config.Config, db *database.DB) error {
+func CreateDirs(cfg *config.Config) error {
 	// uploads
 	if err := os.MkdirAll(cfg.UploadDir, os.ModePerm); err != nil {
 		return err
@@ -17,7 +17,7 @@ func CreateDirs(cfg *config.Config, db *database.DB) error {
 
 	// uploads/{board.Code}/{image,video,audio,other}/
 	filetypes := []string{"image", "video", "audio", "other"}
-	boards, err := db.GetBoards()
+	boards, err := boards.GetBoards()
 	if err != nil {
 		return err
 	}

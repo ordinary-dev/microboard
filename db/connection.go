@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"context"
@@ -10,25 +10,17 @@ import (
 	"github.com/ordinary-dev/microboard/config"
 )
 
-type DB struct {
-	Pool *pgxpool.Pool
-}
+var (
+	DB *pgxpool.Pool
+)
 
-func GetDatabaseConnection(cfg *config.Config) (*DB, error) {
+func GetDatabaseConnection(cfg *config.Config) (err error) {
 	logrus.Debug("Connecting to the database")
 
 	url := getDbUrl(cfg, "postgres")
 
-	dbpool, err := pgxpool.New(context.Background(), url)
-	if err != nil {
-		return nil, err
-	}
-
-	db := DB{
-		Pool: dbpool,
-	}
-
-	return &db, nil
+	DB, err = pgxpool.New(context.Background(), url)
+	return err
 }
 
 func getDbUrl(cfg *config.Config, schema string) string {

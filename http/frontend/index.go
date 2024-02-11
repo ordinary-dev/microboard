@@ -6,13 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/ordinary-dev/microboard/config"
-	"github.com/ordinary-dev/microboard/database"
+	"github.com/ordinary-dev/microboard/db/boards"
 )
 
 // Path: "/"
-func ShowMainPage(db *database.DB, cfg *config.Config) gin.HandlerFunc {
+func ShowMainPage(cfg *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		boards, err := db.GetBoards()
+		boards, err := boards.GetBoards()
 		if err != nil {
 			ctx.Error(err)
 			return

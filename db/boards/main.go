@@ -1,9 +1,11 @@
-package database
+package boards
 
 import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+
+	"github.com/ordinary-dev/microboard/db"
 )
 
 type Board struct {
@@ -34,7 +36,7 @@ type Board struct {
 
 // Save board to the database.
 // Fill in the ID.
-func (db *DB) CreateBoard(board *Board) error {
+func CreateBoard(board *Board) error {
 	query := `INSERT INTO boards(code, name, description, page_limit, bump_limit, unlisted)
         VALUES (@code, @name, @description, @pageLimit, @bumpLimit, @unlisted)`
 	args := pgx.NamedArgs{
@@ -46,57 +48,35 @@ func (db *DB) CreateBoard(board *Board) error {
 		"unlisted":    board.Unlisted,
 	}
 
-	_, err := db.Pool.Exec(context.Background(), query, args)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err := db.DB.Exec(context.Background(), query, args)
+	return err
 }
 
 // Get all boards, even unlisted.
-func (db *DB) GetBoards() ([]Board, error) {
+func GetBoards() ([]Board, error) {
 	query := `SELECT * FROM boards ORDER BY code`
 
-	rows, err := db.Pool.Query(context.Background(), query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	boards, err := pgx.CollectRows(rows, pgx.RowToStructByName[Board])
-	if err != nil {
-		return nil, err
-	}
-
-	return boards, nil
+	rows, _ := db.DB.Query(context.Background(), query)
+	return pgx.CollectRows(rows, pgx.RowToStructByName[Board])
 }
 
 // Get board info.
-func (db *DB) GetBoard(boardCode string) (*Board, error) {
-	query := `SELECT * FROM boards WHERE code = @code`
-	args := pgx.NamedArgs{
-		"code": boardCode,
-	}
+func GetBoard(boardCode string) (Board, error) {
+	query := `SELECT * FROM boards WHERE code = $1`
 
-	rows, err := db.Pool.Query(context.Background(), query, args)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	board, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[Board])
-	if err != nil {
-		return nil, err
-	}
-
-	return &board, nil
+	rows, _ := db.DB.Query(context.Background(), query, boardCode)
+	return pgx.CollectOneRow(rows, pgx.RowToStructByName[Board])
 }
 
 // Save updated board information to the database.
-func (db *DB) UpdateBoard(board *Board) error {
-	query := `UPDATE boards
-        SET name = @name, description = @description, page_limit = @pageLimit, bump_limit = @bumpLimit, unlisted = @unlisted
+func UpdateBoard(board *Board) error {
+	query := `
+        UPDATE boards
+        SET name = @name,
+            description = @description,
+            page_limit = @pageLimit,
+            bump_limit = @bumpLimit,
+            unlisted = @unlisted
         WHERE code = @code`
 	args := pgx.NamedArgs{
 		"code":        board.Code,
@@ -107,13 +87,13 @@ func (db *DB) UpdateBoard(board *Board) error {
 		"unlisted":    board.Unlisted,
 	}
 
-	cmdTag, err := db.Pool.Exec(context.Background(), query, args)
+	cmdTag, err := db.DB.Exec(context.Background(), query, args)
 	if err != nil {
 		return err
 	}
 
 	if cmdTag.RowsAffected() != 1 {
-		return ErrNoRowsWereAffected
+		return pgx.ErrNoRows
 	}
 
 	return nil
