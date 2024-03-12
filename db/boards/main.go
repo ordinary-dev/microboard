@@ -98,3 +98,20 @@ func UpdateBoard(board *Board) error {
 
 	return nil
 }
+
+func DeleteBoard(ctx context.Context, boardCode string) error {
+	query := `
+        DELETE FROM boards
+        WHERE code = $1
+    `
+	cmdTag, err := db.DB.Exec(ctx, query, boardCode)
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() != 1 {
+		return pgx.ErrNoRows
+	}
+
+	return nil
+}

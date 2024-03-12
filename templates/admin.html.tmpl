@@ -4,10 +4,12 @@
     {{ template "head" . }}
     <title>Admin panel - Microboard</title>
     <link rel="stylesheet" href="/assets/css/admin.css" />
+    <script src="/assets/js/board-editor.js"></script>
   </head>
   <body class="page">
     {{ range $idx, $board := .boards }}
       <form class="board" method="POST" action="/boards/{{ $board.Code }}">
+        <h2>/{{ $board.Code }}/</h2>
         <div class="row">
           <div>
             <label>Code</label>
@@ -58,34 +60,42 @@
           <label for="unlisted-{{ $idx }}">Unlisted</label>
         </div>
 
-        <button>Save</button>
+        <button type="submit">Save</button>
+        <button type="button" onClick="deleteBoard({{ $board.Code }})">Delete</button>
       </form>
     {{ end }}
 
     <form class="board" method="POST" action="/boards">
+      <h2>New board</h2>
       <div class="row">
         <div>
           <label>Code</label>
           <input
             name="code"
             class="code"
+            placeholder="b"
           />
         </div>
         <div class="name">
           <label>Name</label>
           <input
             name="boardName"
+            placeholder="Random"
             required
           />
         </div>
       </div>
 
       <label>Description</label>
-      <textarea name="description" required></textarea>
+      <textarea
+        name="description"
+        placeholder="Description of the board (a few sentences)."
+        required
+      ></textarea>
 
       <div class="row">
         <div>
-          <label>Page limit</label>
+          <label>Page limit (0 - no limit)</label>
           <input
             type="number"
             name="pageLimit"
@@ -93,7 +103,7 @@
           />
         </div>
         <div>
-          <label>Bump limit</label>
+          <label>Bump limit (0 - no limit)</label>
           <input
             type="number"
             name="bumpLimit"
@@ -107,7 +117,7 @@
         <label for="unlisted">Unlisted</label>
       </div>
 
-      <button>Create</button>
+      <button>Create a board</button>
     </form>
   </body>
 </html>

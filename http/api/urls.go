@@ -35,4 +35,5 @@ func ConfigureAPI(engine *gin.Engine, cfg *config.Config) {
 	protectedAPI.Use(AuthorizationMiddleware(cfg))
 	protectedAPI.POST("/boards", CreateBoard(cfg))
 	protectedAPI.PUT("/boards/:code", UpdateBoard())
+	protectedAPI.DELETE("/boards/:code", DeleteBoard)
 }

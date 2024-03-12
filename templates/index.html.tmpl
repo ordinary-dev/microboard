@@ -16,6 +16,7 @@
           Photo by <a href="https://unsplash.com/@snight">Sergei Solo</a> on <a href="https://unsplash.com/photos/Zif9OPYfwdE">Unsplash</a>
         </div>
       </div>
+
       {{range .boards}}
         {{ if not .Unlisted }}
           <a href="/boards/{{.Code}}" class="boardCard">
@@ -23,6 +24,12 @@
             <div class="boardName">{{.Name}}</div>
           </a>
         {{ end }}
+      {{end}}
+
+      {{if not .boards}}
+        <p>
+        Login to the <a href="/login">admin panel</a> and create your first board.
+        </p>
       {{end}}
     </div>
   </body>

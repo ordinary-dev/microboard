@@ -72,3 +72,14 @@ func UpdateBoard() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, updatedBoard)
 	}
 }
+
+func DeleteBoard(ctx *gin.Context) {
+	code := ctx.Param("code")
+
+	if err := boards.DeleteBoard(ctx, code); err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, gin.H{})
+}

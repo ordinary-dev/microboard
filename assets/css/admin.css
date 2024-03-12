@@ -7,13 +7,25 @@
 .board {
   width: 100%;
   max-width: 500px;
-  margin-top: 4em;
+  margin-top: 2em;
+  border: 1px solid #67637e;
+  border-radius: 5px;
+  background-color: var(--bg-light);
+  padding: 10px;
+}
+
+.board h2 {
+  margin-top: 0;
 }
 
 .board input,
 .board textarea {
   padding: 10px;
   border-radius: 5px;
+}
+
+.board textarea {
+  resize: vertical;
 }
 
 .board label {
