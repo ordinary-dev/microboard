@@ -18,6 +18,10 @@ type Config struct {
 	DbPassword *string `default:"nil"`
 	DbHost     string  `required:"true"`
 	DbPort     *uint16
+	// Apply database migrations at server startup?
+	// If you have multiple server instances, this option may result in unexpected behavior. For such cases, there is a separate migration program.
+	// If you have a single instance, this option can make deployment easier.
+	ApplyMigrations bool `default:"false"`
 
 	// HTTP server settings.
 

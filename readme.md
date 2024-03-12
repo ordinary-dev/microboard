@@ -16,7 +16,8 @@ docker-compose up
 
 ```bash
 cd src
-go run .
+make migrations
+make run
 ```
 
 4. Open [localhost:8000](http://localhost:8000) in your browser!

@@ -26,8 +26,11 @@ func main() {
 	logrus.SetLevel(logLevel)
 	logrus.Infof("Setting log level to %v", logLevel)
 
-	if err = db.Migrate(cfg); err != nil {
-		logrus.Errorf("Migrate: %v", err)
+	if cfg.ApplyMigrations {
+		if err = db.Migrate(cfg); err != nil {
+			logrus.Fatalf("Database migrations: %v", err)
+		}
+		logrus.Info("Migrations have been applied")
 	}
 
 	if err := db.GetDatabaseConnection(cfg); err != nil {
