@@ -1,4 +1,4 @@
-FROM golang:1.21.0-alpine3.18 AS builder
+FROM golang:1.22-alpine AS builder
 
 RUN apk add gcc
 RUN apk add musl-dev

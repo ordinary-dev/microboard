@@ -1,6 +1,6 @@
 module github.com/ordinary-dev/microboard
 
-go 1.20
+go 1.22
 
 require (
 	github.com/davidbyttow/govips/v2 v2.13.0
