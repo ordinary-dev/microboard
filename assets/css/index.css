@@ -60,3 +60,7 @@
 .boardName:hover {
     background-color: var(--fg-dark);
 }
+
+.links {
+  margin-top: 4em;
+}
